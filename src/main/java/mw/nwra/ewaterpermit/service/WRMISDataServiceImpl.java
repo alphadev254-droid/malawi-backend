@@ -182,7 +182,9 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         List<CoreLicense> filteredLicenses = licenses.stream()
                 .filter(license -> {
                     if (license.getDateIssued() == null) return false;
-                    LocalDate licenseDate = license.getDateIssued().toInstant()
+                    // Convert java.sql.Date to java.util.Date to avoid UnsupportedOperationException
+                    Date dateIssued = new Date(license.getDateIssued().getTime());
+                    LocalDate licenseDate = dateIssued.toInstant()
                             .atZone(ZoneId.systemDefault()).toLocalDate();
                     return licenseDate.equals(targetDate);
                 })
