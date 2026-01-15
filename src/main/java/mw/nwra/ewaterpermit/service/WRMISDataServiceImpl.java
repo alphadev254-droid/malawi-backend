@@ -166,23 +166,44 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         log.info("📅 WRMIS: Fetching approved permits for date: {}", specificDate);
 
         if (specificDate == null) {
+            log.warn("⚠️ WRMIS: Specific date is null");
             return Collections.emptyList();
         }
 
-        LocalDate targetDate = specificDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        try {
+            LocalDate targetDate = specificDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            log.debug("Target date converted to LocalDate: {}", targetDate);
 
-        List<CoreLicense> licenses = licenseRepository.findAll();
+            List<CoreLicense> licenses = licenseRepository.findAll();
+            log.debug("Found {} total licenses", licenses != null ? licenses.size() : "null");
 
-        List<CoreLicense> filteredLicenses = licenses.stream()
-                .filter(license -> {
-                    if (license.getDateIssued() == null) return false;
-                    LocalDate licenseDate = license.getDateIssued().toInstant()
-                            .atZone(ZoneId.systemDefault()).toLocalDate();
-                    return licenseDate.equals(targetDate);
-                })
-                .collect(Collectors.toList());
+            if (licenses == null) {
+                log.error("❌ WRMIS: License repository returned null");
+                return Collections.emptyList();
+            }
 
-        return mapLicensesToDTOsWithAssessments(filteredLicenses);
+            List<CoreLicense> filteredLicenses = licenses.stream()
+                    .filter(license -> {
+                        if (license == null) {
+                            log.warn("⚠️ Found null license in list");
+                            return false;
+                        }
+                        if (license.getDateIssued() == null) {
+                            log.debug("License {} has null dateIssued", license.getId());
+                            return false;
+                        }
+                        LocalDate licenseDate = license.getDateIssued().toInstant()
+                                .atZone(ZoneId.systemDefault()).toLocalDate();
+                        return licenseDate.equals(targetDate);
+                    })
+                    .collect(Collectors.toList());
+
+            log.debug("Filtered to {} licenses for target date", filteredLicenses.size());
+            return mapLicensesToDTOsWithAssessments(filteredLicenses);
+        } catch (Exception e) {
+            log.error("❌ WRMIS: Error in getApprovedPermitsByDate: {}", e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     // ========== Private Helper Methods ==========
