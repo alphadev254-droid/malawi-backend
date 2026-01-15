@@ -1,0 +1,1538 @@
+{
+  "info": {
+    "_postman_id": "34196881-c782-4ec7-abb8-dec13d6da68f",
+    "name": "Sandbox eCommerce API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Order registration (register.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"orderId\", jsonData.orderId);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "amount",
+              "value": "100"
+            },
+            {
+              "key": "currency",
+              "value": "978"
+            },
+            {
+              "key": "language",
+              "value": "en"
+            },
+            {
+              "key": "orderNumber",
+              "value": ""
+            },
+            {
+              "key": "returnUrl",
+              "value": "https://mybestmerchantreturnurl.com"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "clientId",
+              "value": "259753456"
+            }
+          ],
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/register.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "register.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order pre-authorization (registerPreAuth.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);",
+              "pm.collectionVariables.set(\"orderId\", jsonData.orderId);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "amount",
+              "value": "100"
+            },
+            {
+              "key": "currency",
+              "value": "978"
+            },
+            {
+              "key": "language",
+              "value": "en"
+            },
+            {
+              "key": "orderNumber",
+              "value": ""
+            },
+            {
+              "key": "returnUrl",
+              "value": "https://mybestmerchantreturnurl.com"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/registerPreAuth.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "registerPreAuth.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deposit order (deposit.do)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "amount",
+              "value": "100"
+            },
+            {
+              "key": "orderId",
+              "value": ""
+            },
+            {
+              "key": "language",
+              "value": "en"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/deposit.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "deposit.do"],
+          "query": [
+            {
+              "key": "phone",
+              "value": "9521235847",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payment reversal (reverse.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "orderId",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "en",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/reverse.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "reverse.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refund (refund.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "amount",
+              "value": "100"
+            },
+            {
+              "key": "orderId",
+              "value": ""
+            },
+            {
+              "key": "language",
+              "value": "en"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/refund.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "refund.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel order (decline.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "orderId",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "orderNumber",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "merchantLogin",
+              "value": "OurBestMerchantLogin",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "en",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/decline.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "decline.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payment for order (paymentorder.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "language",
+              "value": "en"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "MDORDER",
+              "value": ""
+            },
+            {
+              "key": "$PAN",
+              "value": "4000001111111118"
+            },
+            {
+              "key": "$CVC",
+              "value": "123"
+            },
+            {
+              "key": "YYYY",
+              "value": "2030"
+            },
+            {
+              "key": "MM",
+              "value": "12"
+            },
+            {
+              "key": "TEXT",
+              "value": "JOHN SMITH "
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/paymentorder.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "paymentorder.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Instant payment (instantPayment.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "amount",
+              "value": "100",
+              "type": "text"
+            },
+            {
+              "key": "currency",
+              "value": "978",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "my_first_order",
+              "type": "text"
+            },
+            {
+              "key": "orderNumber",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "pan",
+              "value": "4000001111111118",
+              "type": "text"
+            },
+            {
+              "key": "cvc",
+              "value": "123",
+              "type": "text"
+            },
+            {
+              "key": "expiry",
+              "value": "203012",
+              "type": "text"
+            },
+            {
+              "key": "cardHolderName",
+              "value": "TEST CARDHOLDER",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "en",
+              "type": "text"
+            },
+            {
+              "key": "backUrl",
+              "value": "https://mybestmerchantreturnurl.com",
+              "type": "text"
+            },
+            {
+              "key": "failUrl",
+              "value": "https://mybestmerchantreturnurl.com",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/instantPayment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "instantPayment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Redirect to ACS (simplified) (acsRedirect.do)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/acsRedirect.do?orderId=",
+          "host": ["{{baseUrl}}"],
+          "path": ["acsRedirect.do"],
+          "query": [
+            {
+              "key": "orderId",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "MOTO payment (motoPayment.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "amount",
+              "value": "2000",
+              "type": "text"
+            },
+            {
+              "key": "currency",
+              "value": "978",
+              "type": "text"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "returnUrl",
+              "value": "https://mybestmerchantreturnurl.com",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "my_first_order",
+              "type": "text"
+            },
+            {
+              "key": "pan",
+              "value": "4000001111111118",
+              "type": "text"
+            },
+            {
+              "key": "expiry",
+              "value": "203012",
+              "type": "text"
+            },
+            {
+              "key": "cvc",
+              "value": "123",
+              "type": "text"
+            },
+            {
+              "key": "cardholder",
+              "value": "TEST CARDHOLDER",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "en",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/motoPayment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "motoPayment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "COF payment (paymentOrderBinding.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "returnUrl",
+              "value": "https://mybestmerchantreturnurl.com"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "mdOrder",
+              "value": ""
+            },
+            {
+              "key": "bindingId",
+              "value": ""
+            },
+            {
+              "key": "clientId",
+              "value": "259753456"
+            },
+            {
+              "key": "cvc",
+              "value": "123"
+            },
+            {
+              "key": "tii",
+              "value": "F",
+              "type": "default"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/paymentOrderBinding.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "paymentOrderBinding.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get stored credentials (getBindings.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);\r",
+              "pm.collectionVariables.set(\"bindingId\", jsonData.bindings[0].bindingId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "clientId",
+              "value": "259753456",
+              "type": "text"
+            },
+            {
+              "key": "bindingType",
+              "value": "C",
+              "type": "text",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/getBindings.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "getBindings.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get stored credentials by card number (getBindingsByCardOrId.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "pan",
+              "value": "4000001111111118",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/getBindingsByCardOrId.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "getBindingsByCardOrId.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deactivate a stored credential (unBindCard.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "bindingId",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/unBindCard.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "unBindCard.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Enable a stored credential (bindCard.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "bindingId",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/bindCard.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "bindCard.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Extend a stored credential expiration date (extendBinding.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "bindingId",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "newExpiry",
+              "value": "203212",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "en",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/extendBinding.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "extendBinding.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Recurrent payment (recurrentPayment.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userName\" : \"{{API Login}}\",\n  \"password\" : \"{{API Password}}\",\n  \"orderNumber\": \"UAF-203974-DE-12\",\n  \"language\" : \"en\",\n  \"bindingId\": \"\",\n  \"amount\" : 1200,\n  \"currency\" : \"978\",\n  \"description\" : \"Test description\",\n  \"additionalParameters\" : {\n    \"firstParamName\" : \"firstParamValue\",\n    \"secondParamName\" : \"secondParamValue\",\n    \"email\" : \"email@email.com\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/recurrentPayment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["recurrentPayment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Installment payment (installmentPayment.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userName\": \"{{API Login}}\",\n  \"password\": \"{{API Password}}\",\n  \"orderNumber\": \"UAF-203974-DE-12\",\n  \"language\": \"en\",\n  \"bindingId\": \"\",\n  \"amount\": 12300,\n  \"currency\": \"978\",\n  \"description\" : \"Test description\",\n  \"additionalParameters\": {\n    \"firstParamName\": \"firstParamValue\",\n    \"secondParamName\": \"secondParamValue\"\n  }\n }"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/installmentPayment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["installmentPayment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order status (getOrderStatusExtended.do)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [""],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}"
+            },
+            {
+              "key": "language",
+              "value": "en"
+            },
+            {
+              "key": "orderId",
+              "value": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/getOrderStatusExtended.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "getOrderStatusExtended.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Apple Pay order registration (/applepay/payment.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"additionalParameters\": {\n        \"phone\": \"9521235847\",\n        \"order-pain\": \"111\",\n        \"email\": \"apple@pay.com\"\n    },\n    \"features\": [],\n    \"language\": \"en\",\n    \"merchant\": \"OurBestMerchantLogin\",\n    \"orderNumber\": \"\",\n    \"clientId\": \"259753456\",\n    \"paymentToken\": \"eyJhcHBsaWNhdGlvblByaW1hcnlBY2NvdW50TnVtYmVyIjoiNDQ0NDU1NTUxMTExMzMzMyIsImRldmljZU1hbnVmYWN0dXJlcklkZW50aWZpZXIiOiIwNTAxMTAwMzAyNzMiLCJjdXJyZW5jeUNvZGUiOiI4NDAiLCIKIGFwcGxpY2F0aW9uRXhwaXJhdGlvbkRhdGUiOiIyMjA0MzAiLCJwYXltZW50RGF0YSI6eyJvbmxpbmVQYXltZW50Q3J5cHRvZ3JhbSI6IkFNMzJ5TDB2dU9PbUFBR0cwaVFVQW9BQkZBPT0ifSwiCiBwYXltZW50RGF0YVR5cGUiOiIzRFNlY3VyZSIsInRyYW5zYWN0aW9uQW1vdW50IjoxMDEwfQ==\",\n    \"preAuth\": false,\n    \"recurrent\": false,\n    \"recurrentInitialize\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/applepay/payment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["applepay", "payment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Apple Pay Direct (applepay/paymentDirect.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))\r",
+              "\r",
+              "var pan = pm.collectionVariables.get(\"testCardNumber\");\r",
+              "\r",
+              "var message = \"{\\\"applicationPrimaryAccountNumber\\\":\\\"\" + pan + \"\\\",\\\"deviceManufacturerIdentifier\\\":\\\"050110030273\\\",\\\"currencyCode\\\":\\\"978\\\",\\\"applicationExpirationDate\\\":\\\"241230\\\",\\\"paymentData\\\":{\\\"onlinePaymentCryptogram\\\":\\\"AM32yL0vuOOmAAGG0iQUAoABFA==\\\"},\\\"paymentDataType\\\":\\\"3DSecure\\\",\\\"transactionAmount\\\":1010}\";\r",
+              "var base64Hash = CryptoJS.enc.Utf8.parse(message);\r",
+              "var base64 = CryptoJS.enc.Base64.stringify(base64Hash);\r",
+              "pm.collectionVariables.set(\"paymentToken\", base64);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderNumber\": \"\",\n    \"description\": \"description of the order\",\n    \"language\": \"en\",\n    \"paymentToken\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/applepay/paymentDirect.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["applepay", "paymentDirect.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Google Pay order registration (google/payment.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"amount\": 1000,\n    \"features\": [],\n    \"merchant\": \"OurBestMerchantLogin\",\n    \"orderNumber\": \"\",\n    \"paymentToken\": \"eyJzaWduYXR1cmUiOiJNRVF...dGM3NHUxQWY5L1pNPVwifSJ9\",\n    \"preAuth\": false,\n    \"returnUrl\": \"https://mybestmerchantreturnurl.com/\",\n    \"clientId\": \"259753456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/google/payment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["google", "payment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Google Pay Direct (google/paymentDirect.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"paymentToken\": \"eyJnYXR<skipped>lBQT0ifX0=\",\n    \"amount\": 100,\n    \"orderNumber\": \"\",\n    \"ip\": \"0.0.0.0\",\n    \"description\": \"description\",\n    \"language\": \"en\",\n    \"preAuth\": false,\n    \"returnUrl\": \"https://mybestmerchantreturnurl.com\",\n    \"currencyCode\": \"978\",\n    \"threeDSVer2FinishUrl\": \"https:test.com\",\n    \"failUrl\": \"https://dev.bpcbt.com/payment/\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/google/paymentDirect.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["google", "paymentDirect.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Samsung Pay order registration (samsung/payment.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"additionalParameters\": {\n        \"phone\": \"9521235847\",\n        \"order-pain\": \"111\",\n        \"email\": \"samsung@pay.com\"\n    },\n    \"language\": \"en\",\n    \"merchant\": \"OurBestMerchantLogin\",\n    \"orderNumber\": \"\",\n    \"paymentToken\": \".II-jot36URBzoJMmtU6B0vS...LC46IJLgqIRwjL85BjKPRQ\",\n    \"preAuth\": false,\n    \"ip\": \"0.0.0.0\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/samsung/payment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["samsung", "payment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Samsung Pay Direct (samsung/paymentDirect.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"merchant\": \"OurBestMerchantLogin\",\n    \"orderNumber\": \"\",\n    \"language\": \"en\",\n    \"preAuth\": true,\n    \"description\": \"Test description\",\n    \"additionalParameters\": {\n        \"firstParamName\": \"firstParamValue\",\n        \"secondParamName\": \"secondParamValue\"\n    },\n    \"paymentToken\": \"ew0KICB7DQoJICA...0KICB9DQp9\",\n    \"ip\": \"127.0.0.1\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/samsung/paymentDirect.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["samsung", "paymentDirect.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "P2P order registration (registerP2P.do)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": ["pm.collectionVariables.set(\"randomNumber\", _.random(999, 9999999999))"],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = JSON.parse(responseBody);\r",
+              "pm.collectionVariables.set(\"orderId\", jsonData.orderId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"amount\": 50000,\n    \"currency\": \"978\",\n    \"returnUrl\": \"https://mybestmerchantreturnurl.com\",\n    \"orderNumber\": \"\",\n    \"clientId\": \"259753456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/registerP2P.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "registerP2P.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Fee amount (verifyP2P.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\",\n    \"fromCard\": {\n        \"cardholderName\": \"TEST CARDHOLDER\",\n        \"cvc\": \"123\",\n        \"expirationMonth\": 12,\n        \"expirationYear\": 2030,\n        \"pan\": \"5000001111111115\"\n    },\n    \"toCard\": {\n        \"pan\": \"4000001111111118\"\n    },\n    \"amount\": \"50000\",\n    \"clientId\": \"259753456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/verifyP2P.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "verifyP2P.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "P2P transfer (performP2P.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\",\n    \"fromCard\": {\n        \"cardholderName\": \"TEST CARDHOLDER\",\n        \"cvc\": \"123\",\n        \"expirationMonth\": 12,\n        \"expirationYear\": 2030,\n        \"pan\": \"5000001111111115\"\n    },\n    \"toCard\": {\n        \"pan\": \"4000001111111118\"\n    },\n    \"amount\": 50000,\n    \"clientId\": \"259753456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/performP2P.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "performP2P.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "P2P transfer 3DS (performP2P.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\",\n    \"fromCard\": {\n        \"cardholderName\": \"TEST CARDHOLDER\",\n        \"cvc\": \"123\",\n        \"expirationMonth\": 12,\n        \"expirationYear\": 2030,\n        \"pan\": \"5000001111111115\"\n    },\n    \"toCard\": {\n        \"pan\": \"4000001111111118\"\n    },\n    \"amount\": 50000,\n    \"threeDSServerTransId\": \"3afc168a-94b4-4eb3-8e2e-80f6c186669d\",\n    \"threeDSVer2FinishUrl\": \"https://example.com/acs2/acs/3dsMethod\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/performP2P.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "performP2P.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "P2P transfer status (getP2PStatus.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/getP2PStatus.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "getP2PStatus.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Stored-credential P2P transfer (performP2PByBinding.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\",\n    \"amountInput\": 1000,\n    \"currency\": \"978s\",\n    \"clientId\": \"259753456\",\n    \"fromCard\": {\n        \"bindingId\": \"\",\n        \"cvc\": \"123\"\n    },\n    \"type\": \"WITHOUT_TO_CARD\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/performP2PByBinding.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "performP2PByBinding.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Stored-credential P2P fee amount (verifyP2PByBinding.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{API Login}}\",\n    \"password\": \"{{API Password}}\",\n    \"orderId\": \"\",\n    \"amount\": 1000,\n    \"currency\": \"978\",\n    \"clientId\": \"259753456\",\n    \"fromCard\": {\n        \"bindingId\": \"\"\n    },\n    \"toCard\": {\n        \"pan\": \"4000001111111118\"\n    }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/api/p2p/verifyP2PByBinding.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "api", "p2p", "verifyP2PByBinding.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Finishing 3DS payment via API (finish3dsPayment.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "mdOrder",
+              "value": "",
+              "type": "text"
+            },
+            {
+              "key": "paRes",
+              "value": "",
+              "type": "default"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "default"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "default"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/finish3dsPayment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "finish3dsPayment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Finishing a 3DS2 payment via API (finish3dsVer2Payment.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "threeDSServerTransId",
+              "value": "33b17cb5-b4a5-48ac-a3b8-bc8d6d979a46",
+              "type": "text"
+            },
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/finish3dsVer2Payment.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "finish3dsVer2Payment.do"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Card verification (verifyCard.do)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "content-type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "userName",
+              "value": "{{API Login}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{API Password}}",
+              "type": "text"
+            },
+            {
+              "key": "pan",
+              "value": "4000001111111118",
+              "type": "text"
+            },
+            {
+              "key": "cvc",
+              "value": "123",
+              "type": "text"
+            },
+            {
+              "key": "expiry",
+              "value": "203012",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rest/verifyCard.do",
+          "host": ["{{baseUrl}}"],
+          "path": ["rest", "verifyCard.do"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": " https://dev.bpcbt.com/payment",
+      "type": "string"
+    },
+    {
+      "key": "apiLogin",
+      "value": "test_user",
+      "type": "string"
+    },
+    {
+      "key": "apiPassword",
+      "value": "test_user_password",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "randomNumber",
+      "value": ""
+    },
+    {
+      "key": "bindingId",
+      "value": ""
+    },
+    {
+      "key": "testCardNumber",
+      "value": "4444555511113333",
+      "type": "default"
+    },
+    {
+      "key": "paymentToken",
+      "value": ""
+    },
+    {
+      "key": "language",
+      "value": "en",
+      "type": "default"
+    },
+    {
+      "key": "clientId",
+      "value": "259753456",
+      "type": "default"
+    },
+    {
+      "key": "merchantLogin",
+      "value": "OurBestMerchantLogin",
+      "type": "default"
+    },
+    {
+      "key": "currency",
+      "value": "978",
+      "type": "default"
+    }
+  ]
+}

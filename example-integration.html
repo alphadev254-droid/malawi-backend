@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Allocation Reports with PDF Download</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        .download-pdf-btn {
+            float: right;
+            margin-left: 10px;
+        }
+        .report-card {
+            margin-bottom: 20px;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <h1 class="text-center mb-4">NWRA Water Allocation Reports</h1>
+        
+        <!-- 1. Water Allocation Level Report -->
+        <div id="water-allocation-level" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water Allocation Level Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterAllocationLevelPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-allocation-level-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Water Discharge Distribution Report -->
+        <div id="water-discharge-distribution" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water Discharge Distribution Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterDischargeDistributionPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-discharge-distribution-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Water Use Distribution Report -->
+        <div id="water-use-distribution" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water Use Distribution Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterUseDistributionPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-use-distribution-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Water Permits Distribution Report -->
+        <div id="water-permits-distribution" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water Permits Distribution Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterPermitsDistributionPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-permits-distribution-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Water License Debt Distribution Report -->
+        <div id="water-license-debt-distribution" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water License Debt Distribution Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterLicenseDebtDistributionPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-license-debt-distribution-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Water License Revenue Distribution Report -->
+        <div id="water-license-revenue-distribution" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Water License Revenue Distribution Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadWaterLicenseRevenueDistributionPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="water-license-revenue-distribution-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Largest Water Users Report -->
+        <div id="largest-water-users" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Largest Water Users Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadLargestWaterUsersPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="largest-water-users-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Largest Water Discharge Report -->
+        <div id="largest-water-discharge" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Largest Water Discharge Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadLargestWaterDischargePDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="largest-water-discharge-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Largest Debt Holders Report -->
+        <div id="largest-debt-holders" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Largest Debt Holders Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadLargestDebtHoldersPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="largest-debt-holders-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. Largest Revenue Licences Report -->
+        <div id="largest-revenue-licences" class="card report-card">
+            <div class="card-header report-header">
+                <h4 class="mb-0">Largest Revenue Licences Report</h4>
+                <button class="btn btn-primary download-pdf-btn" onclick="downloadLargestRevenueLicencesPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="largest-revenue-licences-content">
+                    <!-- Your existing report content will be here -->
+                    <p>Report data will be loaded here...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the PDF generator utility -->
+    <script src="frontend-pdf-utils.js"></script>
+
+    <script>
+        // Global variables to store report data
+        let reportData = {};
+
+        // Initialize PDF generator
+        const pdfGenerator = new WaterReportPDFGenerator();
+
+        // Function to load report data from your API
+        async function loadReportData() {
+            try {
+                // Load all reports - replace these URLs with your actual API endpoints
+                const endpoints = [
+                    { key: 'waterAllocationLevel', url: '/v1/reports/water-allocation/level' },
+                    { key: 'waterDischargeDistribution', url: '/v1/reports/water-allocation/discharge-distribution' },
+                    { key: 'waterUseDistribution', url: '/v1/reports/water-allocation/use-distribution' },
+                    { key: 'waterPermitsDistribution', url: '/v1/reports/water-allocation/permits-distribution' },
+                    { key: 'waterLicenseDebtDistribution', url: '/v1/reports/water-allocation/debt-distribution' },
+                    { key: 'waterLicenseRevenueDistribution', url: '/v1/reports/water-allocation/revenue-distribution' },
+                    { key: 'largestWaterUsers', url: '/v1/reports/water-allocation/largest-users' },
+                    { key: 'largestWaterDischarge', url: '/v1/reports/water-allocation/largest-discharge' },
+                    { key: 'largestDebtHolders', url: '/v1/reports/water-allocation/largest-debt-holders' },
+                    { key: 'largestRevenueLicences', url: '/v1/reports/water-allocation/largest-revenue-licences' }
+                ];
+
+                // Load all reports concurrently
+                const promises = endpoints.map(async (endpoint) => {
+                    try {
+                        const response = await fetch(endpoint.url);
+                        const data = await response.json();
+                        reportData[endpoint.key] = data;
+                        
+                        // Update the UI with the loaded data
+                        updateReportUI(endpoint.key, data);
+                    } catch (error) {
+                        console.error(`Error loading ${endpoint.key}:`, error);
+                    }
+                });
+
+                await Promise.all(promises);
+                console.log('All reports loaded successfully');
+            } catch (error) {
+                console.error('Error loading report data:', error);
+            }
+        }
+
+        // Function to update UI with report data
+        function updateReportUI(reportKey, data) {
+            // You can customize this function to display your report data
+            // This is just a basic example
+            const contentDiv = document.getElementById(getContentDivId(reportKey));
+            if (contentDiv && data) {
+                contentDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+        }
+
+        // Helper function to get content div ID
+        function getContentDivId(reportKey) {
+            const mapping = {
+                'waterAllocationLevel': 'water-allocation-level-content',
+                'waterDischargeDistribution': 'water-discharge-distribution-content',
+                'waterUseDistribution': 'water-use-distribution-content',
+                'waterPermitsDistribution': 'water-permits-distribution-content',
+                'waterLicenseDebtDistribution': 'water-license-debt-distribution-content',
+                'waterLicenseRevenueDistribution': 'water-license-revenue-distribution-content',
+                'largestWaterUsers': 'largest-water-users-content',
+                'largestWaterDischarge': 'largest-water-discharge-content',
+                'largestDebtHolders': 'largest-debt-holders-content',
+                'largestRevenueLicences': 'largest-revenue-licences-content'
+            };
+            return mapping[reportKey];
+        }
+
+        // PDF Download Functions
+        function downloadWaterAllocationLevelPDF() {
+            if (reportData.waterAllocationLevel) {
+                pdfGenerator.generateWaterAllocationLevelReport(reportData.waterAllocationLevel);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadWaterDischargeDistributionPDF() {
+            if (reportData.waterDischargeDistribution) {
+                pdfGenerator.generateWaterDischargeDistributionReport(reportData.waterDischargeDistribution);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadWaterUseDistributionPDF() {
+            if (reportData.waterUseDistribution) {
+                pdfGenerator.generateWaterUseDistributionReport(reportData.waterUseDistribution);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadWaterPermitsDistributionPDF() {
+            if (reportData.waterPermitsDistribution) {
+                pdfGenerator.generateWaterPermitsDistributionReport(reportData.waterPermitsDistribution);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadWaterLicenseDebtDistributionPDF() {
+            if (reportData.waterLicenseDebtDistribution) {
+                pdfGenerator.generateWaterLicenseDebtDistributionReport(reportData.waterLicenseDebtDistribution);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadWaterLicenseRevenueDistributionPDF() {
+            if (reportData.waterLicenseRevenueDistribution) {
+                pdfGenerator.generateWaterLicenseRevenueDistributionReport(reportData.waterLicenseRevenueDistribution);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadLargestWaterUsersPDF() {
+            if (reportData.largestWaterUsers) {
+                pdfGenerator.generateLargestWaterUsersReport(reportData.largestWaterUsers);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadLargestWaterDischargePDF() {
+            if (reportData.largestWaterDischarge) {
+                pdfGenerator.generateLargestDischargeReport(reportData.largestWaterDischarge);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadLargestDebtHoldersPDF() {
+            if (reportData.largestDebtHolders) {
+                pdfGenerator.generateLargestDebtHoldersReport(reportData.largestDebtHolders);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        function downloadLargestRevenueLicencesPDF() {
+            if (reportData.largestRevenueLicences) {
+                pdfGenerator.generateLargestRevenueLicencesReport(reportData.largestRevenueLicences);
+            } else {
+                alert('Report data not loaded. Please wait for data to load.');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReportData();
+        });
+    </script>
+</body>
+</html>

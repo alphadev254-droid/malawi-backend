@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: malawi_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: ewaterdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./ewaterdb.sql:/docker-entrypoint-initdb.d/ewaterdb.sql
+    command: --max_allowed_packet=1073741824
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: malawi_app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=ewaterdb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=""
+
+  sql_importer:
+    image: python:3.9-slim
+    container_name: malawi_sql_importer
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./main.py:/app/main.py
+      - ./ewaterdb.sql:/app/ewaterdb.sql
+    working_dir: /app
+    command: |
+      sh -c "
+        pip install mysql-connector-python &&
+        python main.py
+      "
+
+volumes:
+  mysql_data:

@@ -1,0 +1,88 @@
+spring:
+  main:
+    banner-mode: off
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+    show-sql: false 
+    hibernate:
+      ddl-auto: none
+    #database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+#  flyway:
+#    enabled: true
+#    locations: classpath:db/migration
+#    baseline-on-migrate: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    # url: jdbc:mysql://localhost:3306/ewaterdb
+    url: jdbc:mysql://91.108.121.232:3306/ewaterdb
+    username: root
+  #  username: root
+    # password: ""
+    password: "brianndesa001"
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: cu.kibabiiuniversity@gmail.com
+    password: "fuzs zitu xjxh tcck"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            enable: false
+    from: cu.kibabiiuniversity@gmail.com
+    from-name: "License Application System"
+  sql:
+    init:
+      continue-on-error: true
+#for swagger 3.o bug fix
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+
+server:
+  servlet:
+    context-path: /api/nwra-apis/ewaterpermit-ws
+  address: 0.0.0.0
+  port: 8080
+    
+springdoc:
+  override-with-generic-response: false
+#  swagger-ui:
+#    path:/v1/swagger-ui.html
+#JASYPT CONFIGURATION FOR DECRYPTING THE PASSWORD
+jasypt:
+  encryptor:
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    password: Passwd
+    algorithm: PBEWithMD5AndDES
+    
+jwt-secret:
+  value: bnlhc2FkZXYkMTIzJHNlY3JldCRrZXk=
+  expiration: 60480000
+
+# CORS Configuration
+# mode: "dev" - Spring handles CORS with whitelisted domains
+# mode: "production" - CORS disabled in Spring (handled by Nginx)
+cors:
+  mode: production
+
+whitelisted-domains: http://localhost:4200,http://localhost:4201,http://localhost:8080,http://127.0.0.1:4200,http://192.168.137.138:4200,http://localhost:3000,https://yourdomain.com,https://www.yourdomain.com,https://nwra.lomtechnology.com,https://nwraapi.lomtechnology.com,https://malawi-backend-srws.onrender.com,http://192.168.10.4:4200,http://192.168.10.5:4200,http://192.168.10.9:4200,http://192.168.10.3:4200,http://localhost:43125,https://nwra-fe.vercel.app,https://nwra-fr-hwd3.vercel.app
+
+# Frontend verification routes
+verification:
+  success-route: /verification-success
+  error-route: /verification-error
+
+

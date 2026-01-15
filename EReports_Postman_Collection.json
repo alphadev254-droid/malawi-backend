@@ -1,0 +1,573 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789abc",
+		"name": "EReports API - Malawi Water Backend",
+		"description": "Complete test collection for the new e-reports endpoints with optimized performance",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Single Value Reports",
+			"item": [
+				{
+					"name": "Total Approved Licences",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=total_approved_licences",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "total_approved_licences"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Total Areas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=total_areas",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "total_areas"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "High Distribution Areas Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=high_distribution_areas",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "high_distribution_areas"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Average Licenses Per Area",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=average_licenses_per_area",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "average_licenses_per_area"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "National Total Abstraction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=national_total_abstraction",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "national_total_abstraction"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "National Total Discharge",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=national_total_discharge",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "national_total_discharge"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Total Unpaid Debt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=total_unpaid_debt",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "total_unpaid_debt"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Total License Revenue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=total_license_revenue",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "total_license_revenue"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "National Allocation Level",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=national_allocation_level",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "national_allocation_level"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "High Allocation Areas Count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=high_allocation_areas",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "high_allocation_areas"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Water Resource Areas",
+			"item": [
+				{
+					"name": "Water Resource Areas - Default (Permits)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"]
+						},
+						"description": "Returns optimized permits distribution areas array - the main one your frontend uses"
+					}
+				},
+				{
+					"name": "Water Resource Areas - Permits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=permits",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "permits"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Water Resource Areas - Abstraction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=abstraction",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "abstraction"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Water Resource Areas - Discharge",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=discharge",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "discharge"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Water Resource Areas - Debt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=debt",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "debt"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Water Resource Areas - Revenue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=revenue",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "revenue"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Water Resource Areas - Allocation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=allocation",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "allocation"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "High Distribution Areas",
+			"item": [
+				{
+					"name": "High Distribution Areas - Default (Permits)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"]
+						},
+						"description": "Returns areas with >10% of total permits"
+					}
+				},
+				{
+					"name": "High Distribution Areas - Permits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=permits",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "permits"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "High Distribution Areas - Abstraction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=abstraction",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "abstraction"
+								}
+							]
+						},
+						"description": "Returns areas with >15% of national abstraction"
+					}
+				},
+				{
+					"name": "High Distribution Areas - Discharge",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=discharge",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "discharge"
+								}
+							]
+						},
+						"description": "Returns areas with >15% of national discharge"
+					}
+				},
+				{
+					"name": "High Distribution Areas - Debt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=debt",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "debt"
+								}
+							]
+						},
+						"description": "Returns areas with >15% of total debt"
+					}
+				},
+				{
+					"name": "High Distribution Areas - Revenue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=revenue",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "revenue"
+								}
+							]
+						},
+						"description": "Returns areas with >15% of total revenue"
+					}
+				},
+				{
+					"name": "High Distribution Areas - Allocation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/high-distribution-areas?reportType=allocation",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "high-distribution-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "allocation"
+								}
+							]
+						},
+						"description": "Returns areas with >80% allocation level"
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Testing",
+			"item": [
+				{
+					"name": "Invalid Key Error",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports?key=invalid_key",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"],
+							"query": [
+								{
+									"key": "key",
+									"value": "invalid_key"
+								}
+							]
+						},
+						"description": "Should return 400 Bad Request with list of allowed types"
+					}
+				},
+				{
+					"name": "Missing Key Parameter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports"]
+						},
+						"description": "Should return 400 Bad Request - key parameter is required"
+					}
+				},
+				{
+					"name": "Invalid Report Type Error",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/water-resource-areas?reportType=invalid_type",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "water-resource-areas"],
+							"query": [
+								{
+									"key": "reportType",
+									"value": "invalid_type"
+								}
+							]
+						},
+						"description": "Should return 400 Bad Request with list of allowed report types"
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin Endpoints",
+			"item": [
+				{
+					"name": "Populate Area Names (Bulk)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/admin/populate-area-names",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "admin", "populate-area-names"]
+						},
+						"description": "Bulk populate display names for all areas that don't have them yet using reverse geocoding"
+					}
+				},
+				{
+					"name": "Update Area Name (Manual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"areaId\": \"your-area-id-here\",\n  \"displayName\": \"New Area Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/admin/update-area-name",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "admin", "update-area-name"]
+						},
+						"description": "Manually update the display name for a specific area"
+					}
+				},
+				{
+					"name": "Get Areas Without Names",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/e-reports/admin/areas-without-names",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "e-reports", "admin", "areas-without-names"]
+						},
+						"description": "Get list of areas that don't have display names populated yet"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"description": "Base URL for the Malawi Water Backend API - change this to match your server"
+		}
+	]
+}
