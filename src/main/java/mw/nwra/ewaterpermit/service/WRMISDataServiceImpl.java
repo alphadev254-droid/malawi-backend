@@ -131,6 +131,9 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         log.info("📧 WRMIS: Fetching approved permits for email: {}", email);
 
         List<CoreLicense> licenses = licenseRepository.findAll();
+        if (licenses == null) {
+            return Collections.emptyList();
+        }
 
         List<CoreLicense> filteredLicenses = licenses.stream()
                 .filter(license -> matchesLicenseEmail(license, email))
@@ -166,44 +169,26 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         log.info("📅 WRMIS: Fetching approved permits for date: {}", specificDate);
 
         if (specificDate == null) {
-            log.warn("⚠️ WRMIS: Specific date is null");
             return Collections.emptyList();
         }
 
-        try {
-            LocalDate targetDate = specificDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            log.debug("Target date converted to LocalDate: {}", targetDate);
+        LocalDate targetDate = specificDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-            List<CoreLicense> licenses = licenseRepository.findAll();
-            log.debug("Found {} total licenses", licenses != null ? licenses.size() : "null");
-
-            if (licenses == null) {
-                log.error("❌ WRMIS: License repository returned null");
-                return Collections.emptyList();
-            }
-
-            List<CoreLicense> filteredLicenses = licenses.stream()
-                    .filter(license -> {
-                        if (license == null) {
-                            log.warn("⚠️ Found null license in list");
-                            return false;
-                        }
-                        if (license.getDateIssued() == null) {
-                            log.debug("License {} has null dateIssued", license.getId());
-                            return false;
-                        }
-                        LocalDate licenseDate = license.getDateIssued().toInstant()
-                                .atZone(ZoneId.systemDefault()).toLocalDate();
-                        return licenseDate.equals(targetDate);
-                    })
-                    .collect(Collectors.toList());
-
-            log.debug("Filtered to {} licenses for target date", filteredLicenses.size());
-            return mapLicensesToDTOsWithAssessments(filteredLicenses);
-        } catch (Exception e) {
-            log.error("❌ WRMIS: Error in getApprovedPermitsByDate: {}", e.getMessage(), e);
+        List<CoreLicense> licenses = licenseRepository.findAll();
+        if (licenses == null) {
             return Collections.emptyList();
         }
+
+        List<CoreLicense> filteredLicenses = licenses.stream()
+                .filter(license -> {
+                    if (license.getDateIssued() == null) return false;
+                    LocalDate licenseDate = license.getDateIssued().toInstant()
+                            .atZone(ZoneId.systemDefault()).toLocalDate();
+                    return licenseDate.equals(targetDate);
+                })
+                .collect(Collectors.toList());
+
+        return mapLicensesToDTOsWithAssessments(filteredLicenses);
     }
 
     // ========== Private Helper Methods ==========
@@ -264,9 +249,13 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         Map<String, CoreLicenseAssessment> assessmentMap = new HashMap<>();
         if (!applicationIds.isEmpty()) {
             List<CoreLicenseAssessment> assessments = assessmentRepository.findByLicenseApplicationIdIn(applicationIds);
-            assessments.forEach(assessment ->
-                assessmentMap.put(assessment.getLicenseApplicationId(), assessment)
-            );
+            if (assessments != null) {
+                assessments.forEach(assessment -> {
+                    if (assessment != null && assessment.getLicenseApplicationId() != null) {
+                        assessmentMap.put(assessment.getLicenseApplicationId(), assessment);
+                    }
+                });
+            }
         }
 
         // Map each license to DTO using the pre-fetched assessments
