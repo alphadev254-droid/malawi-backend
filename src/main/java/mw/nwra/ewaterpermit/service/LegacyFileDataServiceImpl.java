@@ -35,18 +35,26 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
 
     @PostConstruct
     public void loadFiles() {
-        log.info("Loading legacy data files...");
+        log.info("=== LEGACY FILE LOADER STARTING ===");
+        log.info("CSV path configured: [{}]", csvPath);
+        log.info("XLSX path configured: [{}]", xlsxPath);
+
+        File csvFile = new File(csvPath);
+        File xlsxFile = new File(xlsxPath);
+        log.info("CSV file exists: {}, size: {} bytes", csvFile.exists(), csvFile.length());
+        log.info("XLSX file exists: {}, size: {} bytes", xlsxFile.exists(), xlsxFile.length());
+
         try {
             loadCsv();
         } catch (Exception e) {
-            log.error("Failed to load CSV file: {}", e.getMessage());
+            log.error("Failed to load CSV file: {}", e.getMessage(), e);
         }
         try {
             loadXlsx();
         } catch (Exception e) {
-            log.error("Failed to load XLSX file: {}", e.getMessage());
+            log.error("Failed to load XLSX file: {}", e.getMessage(), e);
         }
-        log.info("Legacy data loaded — approved permits: {}, permit applications: {}",
+        log.info("=== LEGACY FILE LOADER DONE — approved permits: {}, permit applications: {} ===",
                 approvedPermits.size(), permitApplications.size());
     }
 
@@ -76,6 +84,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
 
         log.info("CSV headers ({}): {}", headers.size(), headers);
 
+        int loaded = 0;
         // Data starts at row index 2 (row 3 in file)
         for (int i = 2; i < rows.size(); i++) {
             List<String> values = rows.get(i);
@@ -95,11 +104,12 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
 
                 WRMISPermitApplicationDTO application = mapCsvToPermitApplication(row);
                 permitApplications.add(application);
+                loaded++;
             } catch (Exception e) {
                 log.warn("Skipping CSV row {}: {}", i + 1, e.getMessage());
             }
         }
-        log.info("CSV loaded: {} records from {}", approvedPermits.size(), csvPath);
+        log.info("CSV loaded: {} records from {}", loaded, csvPath);
     }
 
     private List<List<String>> readCsvRows(File file) {
@@ -214,6 +224,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
                         log.warn("Skipping XLSX sheet [{}] row {}: {}", sheetName, r + 1, e.getMessage());
                     }
                 }
+                log.info("Sheet [{}] done", sheetName);
             }
         }
         log.info("XLSX loaded from {}", xlsxPath);
