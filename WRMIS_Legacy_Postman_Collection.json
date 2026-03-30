@@ -1,0 +1,422 @@
+{
+	"info": {
+		"_postman_id": "wrmis-legacy-001",
+		"name": "WRMIS Legacy File-Based API",
+		"description": "Endpoints that serve approved permits and permit applications directly from legacy files (CSV + XLSX), bypassing the database. Same JWT auth as the main WRMIS endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Get JWT Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json = pm.response.json();",
+									"if (json.token) {",
+									"    pm.collectionVariables.set('jwtToken', json.token);",
+									"    console.log('Token saved:', json.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{wrmisUsername}}\",\n  \"password\": \"{{wrmisPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/auth/token",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "auth", "token"]
+						},
+						"description": "Get JWT token. Token is auto-saved to jwtToken variable."
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Legacy Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "health"]
+						},
+						"description": "Returns file paths, record counts loaded from both files, and all available endpoints."
+					}
+				}
+			]
+		},
+		{
+			"name": "Approved Permits",
+			"item": [
+				{
+					"name": "Get All Approved Permits",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"]
+						},
+						"description": "Returns all approved permits from both files with no date filter."
+					}
+				},
+				{
+					"name": "Get Approved Permits - Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits?dateFrom=2009-01-01&dateTo=2015-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"],
+							"query": [
+								{ "key": "dateFrom", "value": "2009-01-01", "description": "Start date (yyyy-MM-dd)" },
+								{ "key": "dateTo", "value": "2015-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns approved permits issued between dateFrom and dateTo."
+					}
+				},
+				{
+					"name": "Get Approved Permits - From Date Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits?dateFrom=2020-01-01",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"],
+							"query": [
+								{ "key": "dateFrom", "value": "2020-01-01", "description": "Start date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns all approved permits from dateFrom onwards."
+					}
+				},
+				{
+					"name": "Get Approved Permits - To Date Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits?dateTo=2015-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"],
+							"query": [
+								{ "key": "dateTo", "value": "2015-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns all approved permits up to dateTo."
+					}
+				},
+				{
+					"name": "Get Approved Permits - By Specific Date",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits/by-date?date=2009-11-23",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits", "by-date"],
+							"query": [
+								{ "key": "date", "value": "2009-11-23", "description": "Exact issue date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns approved permits issued on exactly this date."
+					}
+				},
+				{
+					"name": "Get Approved Permits - By Email",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits/by-email?email=info@fourseasonsmw.com",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits", "by-email"],
+							"query": [
+								{ "key": "email", "value": "info@fourseasonsmw.com", "description": "Permit holder email" }
+							]
+						},
+						"description": "Returns all approved permits for a specific email address."
+					}
+				},
+				{
+					"name": "Get Approved Permits - By Email + Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits/by-email?email=info@fourseasonsmw.com&dateFrom=2009-01-01&dateTo=2020-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits", "by-email"],
+							"query": [
+								{ "key": "email", "value": "info@fourseasonsmw.com", "description": "Permit holder email" },
+								{ "key": "dateFrom", "value": "2009-01-01", "description": "Start date (yyyy-MM-dd)" },
+								{ "key": "dateTo", "value": "2020-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns approved permits for a specific email within a date range."
+					}
+				},
+				{
+					"name": "Get Approved Permit - By License Number",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits/by-license-number?licenseNumber=S.54/2009",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits", "by-license-number"],
+							"query": [
+								{ "key": "licenseNumber", "value": "S.54/2009", "description": "Grant/license number from the file" }
+							]
+						},
+						"description": "Returns a single approved permit matching the license/grant number."
+					}
+				}
+			]
+		},
+		{
+			"name": "Permit Applications",
+			"item": [
+				{
+					"name": "Get All Permit Applications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications"]
+						},
+						"description": "Returns all permit applications from both files with no date filter."
+					}
+				},
+				{
+					"name": "Get Permit Applications - Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications?dateFrom=2009-01-01&dateTo=2015-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications"],
+							"query": [
+								{ "key": "dateFrom", "value": "2009-01-01", "description": "Start date (yyyy-MM-dd)" },
+								{ "key": "dateTo", "value": "2015-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns permit applications submitted between dateFrom and dateTo."
+					}
+				},
+				{
+					"name": "Get Permit Applications - From Date Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications?dateFrom=2020-01-01",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications"],
+							"query": [
+								{ "key": "dateFrom", "value": "2020-01-01", "description": "Start date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns all permit applications from dateFrom onwards."
+					}
+				},
+				{
+					"name": "Get Permit Applications - To Date Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications?dateTo=2015-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications"],
+							"query": [
+								{ "key": "dateTo", "value": "2015-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns all permit applications up to dateTo."
+					}
+				},
+				{
+					"name": "Get Permit Applications - By Specific Date",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications/by-date?date=2009-11-23",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications", "by-date"],
+							"query": [
+								{ "key": "date", "value": "2009-11-23", "description": "Exact submission date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns permit applications submitted on exactly this date."
+					}
+				},
+				{
+					"name": "Get Permit Applications - By Email",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications/by-email?email=info@fourseasonsmw.com",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications", "by-email"],
+							"query": [
+								{ "key": "email", "value": "info@fourseasonsmw.com", "description": "Applicant email" }
+							]
+						},
+						"description": "Returns all permit applications for a specific email address."
+					}
+				},
+				{
+					"name": "Get Permit Applications - By Email + Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/permit-applications/by-email?email=info@fourseasonsmw.com&dateFrom=2009-01-01&dateTo=2020-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "permit-applications", "by-email"],
+							"query": [
+								{ "key": "email", "value": "info@fourseasonsmw.com", "description": "Applicant email" },
+								{ "key": "dateFrom", "value": "2009-01-01", "description": "Start date (yyyy-MM-dd)" },
+								{ "key": "dateTo", "value": "2020-12-31", "description": "End date (yyyy-MM-dd)" }
+							]
+						},
+						"description": "Returns permit applications for a specific email within a date range."
+					}
+				}
+			]
+		},
+		{
+			"name": "Error Testing",
+			"item": [
+				{
+					"name": "Missing Auth Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"]
+						},
+						"description": "Should return 401 Unauthorized - no token provided."
+					}
+				},
+				{
+					"name": "Invalid Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer invalid.token.here" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits"]
+						},
+						"description": "Should return 401 Unauthorized - invalid token."
+					}
+				},
+				{
+					"name": "License Number Not Found",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/wrmis/legacy/approved-permits/by-license-number?licenseNumber=DOES-NOT-EXIST",
+							"host": ["{{baseUrl}}"],
+							"path": ["v1", "wrmis", "legacy", "approved-permits", "by-license-number"],
+							"query": [
+								{ "key": "licenseNumber", "value": "DOES-NOT-EXIST" }
+							]
+						},
+						"description": "Should return 404 Not Found."
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/nwra-apis/ewaterpermit-ws",
+			"description": "Base URL including context path"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"description": "Auto-populated after running Get JWT Token request"
+		},
+		{
+			"key": "wrmisUsername",
+			"value": "wrmis_user",
+			"description": "WRMIS auth username"
+		},
+		{
+			"key": "wrmisPassword",
+			"value": "wrmis_password",
+			"description": "WRMIS auth password"
+		}
+	]
+}
