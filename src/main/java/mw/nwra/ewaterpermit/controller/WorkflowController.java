@@ -246,13 +246,15 @@ public class WorkflowController {
             CoreApplicationPayment savedPayment = null;
             if (!existingPayment.isEmpty()) {
                 for (CoreApplicationPayment payment : existingPayment) {
-                    // Update payment if it's PENDING or REJECTED (to allow re-upload after rejection)
-                    if ("PENDING".equals(payment.getPaymentStatus()) || "REJECTED".equals(payment.getPaymentStatus())) {
+                    // Update payment if it's PENDING, REJECTED or AWAITING_APPROVAL (re-upload scenario)
+                    if ("PENDING".equals(payment.getPaymentStatus()) ||
+                        "REJECTED".equals(payment.getPaymentStatus()) ||
+                        "AWAITING_APPROVAL".equals(payment.getPaymentStatus())) {
                         payment.setCoreLicenseApplication(application);
                         payment.setAmountPaid(amount != null ? amount : 0.0);
                         payment.setPaymentMethod(paymentMethod);
                         payment.setPaymentStatus("AWAITING_APPROVAL");
-                        payment.setReceiptDocumentId(savedDocument.getId()); // Update to NEW document ID
+                        payment.setReceiptDocumentId(savedDocument.getId());
                         payment.setNeedsVerification(true);
                         paymentService.editCoreApplicationPayment(payment);
                         savedPayment = payment;
@@ -263,7 +265,18 @@ public class WorkflowController {
                 }
 
                 if (savedPayment == null) {
-                    throw new RuntimeException("No pending or rejected payment found to update");
+                    // No updatable payment found — create a new one
+                    CoreApplicationPayment payment = new CoreApplicationPayment();
+                    payment.setCoreLicenseApplication(application);
+                    payment.setAmountPaid(amount != null ? amount : 0.0);
+                    payment.setPaymentMethod(paymentMethod);
+                    payment.setPaymentStatus("AWAITING_APPROVAL");
+                    payment.setCoreFeesType(coreFeesTypeService.getCoreFeesTypeByName("Application fee"));
+                    payment.setReceiptDocumentId(savedDocument.getId());
+                    payment.setNeedsVerification(true);
+                    payment.setDateCreated(new Timestamp(System.currentTimeMillis()));
+                    savedPayment = paymentService.addCoreApplicationPayment(payment);
+                    log.info("Created new payment record (existing payments not updatable): {}", savedPayment.getId());
                 }
             } else {
                 CoreApplicationPayment payment = new CoreApplicationPayment();
@@ -914,6 +927,23 @@ public class WorkflowController {
                 log.error("Failed to log activity (non-blocking): {}", activityError.getMessage());
             }
 
+            // Extract applicant info early from the already-loaded application to avoid re-fetching later
+            String applicantNameForEmail = null;
+            String applicantEmailForEmail = null;
+            String licenseTypeNameForEmail = null;
+            try {
+                CoreLicenseApplication appForEmailPrep = applicationService.getCoreLicenseApplicationById(applicationId);
+                if (appForEmailPrep != null && appForEmailPrep.getSysUserAccount() != null) {
+                    applicantNameForEmail = appForEmailPrep.getSysUserAccount().getFirstName() + " " +
+                                           appForEmailPrep.getSysUserAccount().getLastName();
+                    applicantEmailForEmail = appForEmailPrep.getSysUserAccount().getEmailAddress();
+                    licenseTypeNameForEmail = appForEmailPrep.getCoreLicenseType() != null ?
+                                             appForEmailPrep.getCoreLicenseType().getName() : "Water Permit";
+                }
+            } catch (Exception e) {
+                log.warn("Could not pre-fetch applicant info for email: {}", e.getMessage());
+            }
+
             // 2. Check current step and determine if step progression is needed
             Integer currentSequence = paymentService.getApplicationStepSequence(applicationId);
             if (currentSequence == null) {
@@ -962,25 +992,17 @@ public class WorkflowController {
             // Send payment approval confirmation email to applicant
             try {
                 log.info("=== SENDING PAYMENT APPROVAL EMAIL TO APPLICANT ===");
-                CoreLicenseApplication application = applicationService.getCoreLicenseApplicationById(applicationId);
-                if (application != null) {
-                    String applicantName = application.getSysUserAccount().getFirstName() + " " +
-                                         application.getSysUserAccount().getLastName();
-                    String applicantEmail = application.getSysUserAccount().getEmailAddress();
-
-                    log.info("Applicant: {} ({})", applicantName, applicantEmail);
+                if (applicantEmailForEmail != null) {
+                    log.info("Applicant: {} ({})", applicantNameForEmail, applicantEmailForEmail);
                     log.info("Fee type approved: {}", feeTypeName);
-
                     String emailTaskId = emailQueueService.queuePaymentApprovalEmail(
-                        applicationId, applicantName, applicantEmail,
-                        application.getCoreLicenseType().getName(), feeTypeName);
-
+                        applicationId, applicantNameForEmail, applicantEmailForEmail,
+                        licenseTypeNameForEmail, feeTypeName);
                     log.info("Payment approval email queued with task ID: {}", emailTaskId);
                 }
             } catch (Exception emailError) {
                 log.error("Error sending payment approval email for application {}: {}",
                         applicationId, emailError.getMessage());
-                // Continue with the response even if email fails
             }
 
             // 4. Send success response

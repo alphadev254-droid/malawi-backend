@@ -48,16 +48,12 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         List<CoreLicenseApplication> applications;
 
         if (dateFrom != null && dateTo != null) {
-            // Query with date range
-            applications = applicationRepository.findByDateSubmittedBetween(dateFrom, dateTo);
+            applications = applicationRepository.findByDateCreatedBetweenOrDateSubmittedBetween(dateFrom, dateTo, dateFrom, dateTo);
         } else if (dateFrom != null) {
-            // Query from date onwards
-            applications = applicationRepository.findByDateSubmittedAfter(dateFrom);
+            applications = applicationRepository.findByDateCreatedAfterOrDateSubmittedAfter(dateFrom, dateFrom);
         } else if (dateTo != null) {
-            // Query up to date
-            applications = applicationRepository.findByDateSubmittedBefore(dateTo);
+            applications = applicationRepository.findByDateCreatedBeforeOrDateSubmittedBefore(dateTo, dateTo);
         } else {
-            // Get all applications
             applications = applicationRepository.findAll();
         }
 
@@ -209,7 +205,8 @@ public class WRMISDataServiceImpl implements WRMISDataService {
             dto.setLicenseType(app.getCoreLicenseType() != null ? app.getCoreLicenseType().getName() : null);
             dto.setApplicationStatus(app.getCoreApplicationStatus() != null ?
                     app.getCoreApplicationStatus().getName() : null);
-            dto.setDateSubmitted(app.getDateSubmitted());
+            // Direct fields - use date_created as fallback when date_submitted is null
+            dto.setDateSubmitted(app.getDateSubmitted() != null ? app.getDateSubmitted() : app.getDateCreated());
             dto.setDateUpdated(app.getDateUpdated());
 
             // Parse JSON fields
@@ -217,12 +214,12 @@ public class WRMISDataServiceImpl implements WRMISDataService {
             parseLocationInfo(app.getLocationInfo(), dto);
             parseFormSpecificData(app.getFormSpecificData(), dto);
 
-            // Direct fields
-            dto.setPermitDuration(app.getPermitDuration());
-            dto.setSourceVillage(app.getSourceVillage());
-            dto.setSourceTA(app.getSourceTa());
-            dto.setSourceLatitude(app.getSourceEasting());
-            dto.setSourceLongitude(app.getSourceNorthing());
+            // Direct entity fields - override JSON if DB column has value
+            if (app.getPermitDuration() != null) dto.setPermitDuration(app.getPermitDuration());
+            if (app.getSourceVillage() != null) dto.setSourceVillage(app.getSourceVillage());
+            if (app.getSourceTa() != null) dto.setSourceTA(app.getSourceTa());
+            if (app.getSourceEasting() != null) dto.setSourceLatitude(app.getSourceEasting());
+            if (app.getSourceNorthing() != null) dto.setSourceLongitude(app.getSourceNorthing());
 
         } catch (Exception e) {
             log.error("Error mapping application {}: {}", app.getId(), e.getMessage());
@@ -293,7 +290,16 @@ public class WRMISDataServiceImpl implements WRMISDataService {
                 // Holder details from application client_info
                 parseClientInfoForLicense(app.getClientInfo(), dto);
 
-                // Get approved volume from pre-fetched assessment (calculated_annual_rental)
+                // Location details from application location_info
+                parseLocationInfoForLicense(app.getLocationInfo(), dto);
+
+                // Direct location fields from application entity
+                if (dto.getSourceLatitude() == null) dto.setSourceLatitude(app.getSourceEasting());
+                if (dto.getSourceLongitude() == null) dto.setSourceLongitude(app.getSourceNorthing());
+                if (dto.getSourceVillage() == null) dto.setSourceVillage(app.getSourceVillage());
+                if (dto.getSourceTA() == null) dto.setSourceTA(app.getSourceTa());
+
+                // Get approved volume from pre-fetched assessment
                 CoreLicenseAssessment assessment = assessmentMap.get(app.getId());
                 if (assessment != null && assessment.getCalculatedAnnualRental() != null) {
                     dto.setApprovedVolume(assessment.getCalculatedAnnualRental());
@@ -343,19 +349,26 @@ public class WRMISDataServiceImpl implements WRMISDataService {
         try {
             Map<String, Object> locationInfo = objectMapper.readValue(locationInfoJson, Map.class);
 
-            // Parse coordinates
-            String coords = getString(locationInfo, "gpsCoordinates", "coordinates", "locationCoordinates");
+            // Parse coordinates - handle both gpsCoordinates string and separate easting/northing keys
+            String coords = getString(locationInfo, "gpsCoordinates", "coordinates", "locationCoordinates", "waterSourceCoordinates");
             if (coords != null && coords.contains(",")) {
                 String[] parts = coords.split(",");
                 if (parts.length >= 2) {
                     dto.setSourceLatitude(parts[0].trim());
                     dto.setSourceLongitude(parts[1].trim());
                 }
+            } else {
+                // Try separate easting/northing keys
+                String easting = getString(locationInfo, "sourceEasting", "easting");
+                String northing = getString(locationInfo, "sourceNorthing", "northing");
+                if (easting != null) dto.setSourceLatitude(easting);
+                if (northing != null) dto.setSourceLongitude(northing);
             }
 
             dto.setSourceVillage(getString(locationInfo, "village", "sourceVillage"));
-            dto.setSourceDistrict(getString(locationInfo, "district", "sourceDistrict"));
+            dto.setSourceDistrict(getString(locationInfo, "district", "sourceDistrict", "waterUptakeDistrict"));
             dto.setSourceTA(getString(locationInfo, "traditionalAuthority", "ta", "sourceTA"));
+            dto.setApplicantTA(getString(locationInfo, "traditionalAuthority", "ta"));
         } catch (Exception e) {
             log.error("Error parsing LOCATION_INFO: {}", e.getMessage());
         }
@@ -390,6 +403,14 @@ public class WRMISDataServiceImpl implements WRMISDataService {
             // Volume unit is always m³ (cubic meters)
             dto.setVolumeUnit("m³");
 
+            // Parse permitDuration from form data if not set from DB column
+            if (dto.getPermitDuration() == null) {
+                String durStr = getString(formData, "permitDuration", "duration", "licenseValidity", "validityPeriod");
+                if (durStr != null) {
+                    try { dto.setPermitDuration(Double.parseDouble(durStr)); } catch (Exception ignored) {}
+                }
+            }
+
         } catch (Exception e) {
             log.error("Error parsing FORM_SPECIFIC_DATA: {}", e.getMessage());
         }
@@ -403,6 +424,7 @@ public class WRMISDataServiceImpl implements WRMISDataService {
 
         try {
             Map<String, Object> clientInfo = objectMapper.readValue(clientInfoJson, Map.class);
+            dto.setHolderName(getString(clientInfo, "clientName", "organizationName", "applicantName", "name"));
             dto.setHolderEmail(getString(clientInfo, "email", "emailAddress"));
             dto.setHolderPhone(getString(clientInfo, "phone", "telephone", "mobile"));
             dto.setHolderAddress(getString(clientInfo, "address", "organizationAddress"));
@@ -431,9 +453,8 @@ public class WRMISDataServiceImpl implements WRMISDataService {
             }
 
             dto.setSourceVillage(getString(locationInfo, "village"));
-            dto.setSourceDistrict(getString(locationInfo, "district"));
+            dto.setSourceDistrict(getString(locationInfo, "district", "waterUptakeDistrict"));
             dto.setSourceTA(getString(locationInfo, "traditionalAuthority", "ta"));
-            dto.setCatchmentArea(getString(locationInfo, "catchment", "catchmentArea"));
         } catch (Exception e) {
             log.error("Error parsing LOCATION_INFO for license: {}", e.getMessage());
         }

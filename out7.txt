@@ -1,0 +1,2 @@
+loaded: 430 skipped: 2
+sample: {'NO.': '1', 'Client Name': 'M.H Drillers', 'Address': 'Box 5620, Limbe', 'Contact': '888843222', 'Email address': 'mhdrillers2010@gmail.com', 'Location': 'Blantyre', 'Grant number': 'BDP 1/2021,CP 1/2021', 'Registration Date': '19/3/2021', 'Expire date': '18/3/2022', 'Renewal fee': 'Renewed', 'Application fees': '980000.00', 'Renewal Fees 2021-2022': '', 'Renewal Fees 2022- 2023': '', 'Renewal Fees 2023-2024': '580000.00', 'Status': 'Active', '': ''}

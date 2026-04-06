@@ -24,11 +24,13 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
 
     private static final Logger log = LoggerFactory.getLogger(LegacyFileDataServiceImpl.class);
 
-    @Value("${wrmis.legacy.xlsx-path}")
-    private String xlsxPath;
-
+    // batch2_27_01_2026.csv — surface water, 2-row merged headers, data from row 3
     @Value("${wrmis.legacy.csv-path}")
-    private String csvPath;
+    private String surfaceWaterCsvPath;
+
+    // additional data (2).csv — drillers, single header row, data from row 2
+    @Value("${wrmis.legacy.xlsx-path}")
+    private String drillersCsvPath;
 
     private final List<WRMISApprovedPermitDTO> approvedPermits = new ArrayList<>();
     private final List<WRMISPermitApplicationDTO> permitApplications = new ArrayList<>();
@@ -36,42 +38,51 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
     @PostConstruct
     public void loadFiles() {
         log.info("=== LEGACY FILE LOADER STARTING ===");
-        log.info("CSV path configured: [{}]", csvPath);
-        log.info("XLSX path configured: [{}]", xlsxPath);
+        log.info("Surface water CSV: [{}]", surfaceWaterCsvPath);
+        log.info("Drillers CSV: [{}]", drillersCsvPath);
 
-        File csvFile = new File(csvPath);
-        File xlsxFile = new File(xlsxPath);
-        log.info("CSV file exists: {}, size: {} bytes", csvFile.exists(), csvFile.length());
-        log.info("XLSX file exists: {}, size: {} bytes", xlsxFile.exists(), xlsxFile.length());
+        File f1 = new File(surfaceWaterCsvPath);
+        File f2 = new File(drillersCsvPath);
+        log.info("Surface water CSV exists: {}, size: {} bytes", f1.exists(), f1.length());
+        log.info("Drillers CSV exists: {}, size: {} bytes", f2.exists(), f2.length());
 
         try {
-            loadCsv();
+            loadSurfaceWaterCsv();
         } catch (Exception e) {
-            log.error("Failed to load CSV file: {}", e.getMessage(), e);
+            log.error("Failed to load surface water CSV: {}", e.getMessage(), e);
         }
         try {
-            loadXlsx();
+            loadDrillersCsv();
         } catch (Exception e) {
-            log.error("Failed to load XLSX file: {}", e.getMessage(), e);
+            log.error("Failed to load drillers CSV: {}", e.getMessage(), e);
         }
-        log.info("=== LEGACY FILE LOADER DONE — approved permits: {}, permit applications: {} ===",
+
+        log.info("=== LEGACY FILE LOADER DONE - approved permits: {}, permit applications: {} ===",
                 approvedPermits.size(), permitApplications.size());
     }
 
-    // ===================== CSV LOADING =====================
+    // ===================== SURFACE WATER CSV =====================
+    // batch2_27_01_2026.csv
+    // Row 1 + Row 2 merged as headers, data starts row 3
+    // Columns: FILE, Licence holder, DISTRCIT, GRANT NUMBER, Duration (YRS),
+    //          Expiry Date, Registration Date/Renewal, Volume (M3/Day, Source,
+    //          Use, X, Y, LOCATION, TA, EMAIL ADDRESS, PHONE CONTACTS, MAILING ADDRESS
 
-    private void loadCsv() throws Exception {
-        File file = new File(csvPath);
+    private void loadSurfaceWaterCsv() throws Exception {
+        File file = new File(surfaceWaterCsvPath);
         if (!file.exists()) {
-            log.warn("CSV file not found: {}", csvPath);
+            log.warn("Surface water CSV not found: {}", surfaceWaterCsvPath);
             return;
         }
 
-        // Try UTF-8 first, fall back to Windows-1252 for smart quotes
         List<List<String>> rows = readCsvRows(file);
-        if (rows.size() < 3) return;
+        log.info("Surface water CSV raw rows: {}", rows.size());
+        if (rows.size() < 3) {
+            log.warn("Surface water CSV has fewer than 3 rows, skipping");
+            return;
+        }
 
-        // Merge row 1 and row 2 as headers (same pattern as import script)
+        // Merge row 1 and row 2 as headers
         List<String> row1 = rows.get(0);
         List<String> row2 = rows.get(1);
         List<String> headers = new ArrayList<>();
@@ -81,11 +92,9 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
             String h2 = i < row2.size() ? row2.get(i).trim() : "";
             headers.add(!h2.isEmpty() ? h2 : h1);
         }
-
-        log.info("CSV headers ({}): {}", headers.size(), headers);
+        log.info("Surface water CSV merged headers ({}): {}", headers.size(), headers);
 
         int loaded = 0;
-        // Data starts at row index 2 (row 3 in file)
         for (int i = 2; i < rows.size(); i++) {
             List<String> values = rows.get(i);
             if (values.isEmpty()) continue;
@@ -95,26 +104,204 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
                 row.put(headers.get(j), values.get(j).trim());
             }
 
-            String file_ = row.getOrDefault("FILE", "").trim();
-            if (file_.isEmpty()) continue;
+            String fileRef = row.getOrDefault("FILE", "").trim();
+            if (fileRef.isEmpty()) continue;
 
             try {
-                WRMISApprovedPermitDTO approved = mapCsvToApprovedPermit(row);
-                approvedPermits.add(approved);
-
-                WRMISPermitApplicationDTO application = mapCsvToPermitApplication(row);
-                permitApplications.add(application);
+                approvedPermits.add(mapSurfaceWaterToApprovedPermit(row));
+                permitApplications.add(mapSurfaceWaterToPermitApplication(row));
                 loaded++;
             } catch (Exception e) {
-                log.warn("Skipping CSV row {}: {}", i + 1, e.getMessage());
+                log.warn("Skipping surface water CSV row {}: {}", i + 1, e.getMessage());
             }
         }
-        log.info("CSV loaded: {} records from {}", loaded, csvPath);
+        log.info("Surface water CSV loaded: {} records", loaded);
     }
 
+    private WRMISApprovedPermitDTO mapSurfaceWaterToApprovedPermit(Map<String, String> row) {
+        WRMISApprovedPermitDTO dto = new WRMISApprovedPermitDTO();
+
+        String grantNumber = row.getOrDefault("GRANT NUMBER", "").trim();
+        String fileRef = row.getOrDefault("FILE", "").trim();
+        dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : fileRef);
+        dto.setApplicationId(fileRef);
+        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
+        dto.setLicenseStatus(resolveStatusFromExpiry(row.getOrDefault("Expiry Date", "")));
+        dto.setLicenseVersion(1);
+
+        dto.setHolderEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
+        dto.setHolderPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
+        dto.setHolderAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
+        dto.setHolderDistrict(row.getOrDefault("DISTRCIT", "").trim());
+        dto.setHolderName(row.getOrDefault("Licence holder", "").trim());
+
+        String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
+        dto.setApprovedVolume(parseBigDecimal(vol));
+        dto.setVolumeUnit("m3");
+
+        dto.setDateIssued(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
+        dto.setExpirationDate(parseDate(row.getOrDefault("Expiry Date", "")));
+
+        String dur = row.getOrDefault("Duration (YRS)", "").trim();
+        if (!dur.isEmpty() && !dur.equalsIgnoreCase("N/A")) dto.setValidityPeriod(dur + " years");
+
+        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
+        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
+        dto.setSourceVillage(row.getOrDefault("LOCATION", "").trim());
+        dto.setSourceTA(row.getOrDefault("TA", "").trim());
+        dto.setSourceDistrict(row.getOrDefault("DISTRCIT", "").trim());
+
+        return dto;
+    }
+
+    private WRMISPermitApplicationDTO mapSurfaceWaterToPermitApplication(Map<String, String> row) {
+        WRMISPermitApplicationDTO dto = new WRMISPermitApplicationDTO();
+
+        String fileRef = row.getOrDefault("FILE", "").trim();
+        dto.setApplicationId(fileRef);
+        dto.setApplicationNumber(row.getOrDefault("GRANT NUMBER", fileRef).trim());
+        dto.setApplicationType("NEW");
+        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
+        dto.setApplicationStatus("APPROVED");
+
+        dto.setApplicantName(row.getOrDefault("Licence holder", "").trim());
+        dto.setApplicantEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
+        dto.setApplicantPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
+        dto.setApplicantAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
+        dto.setApplicantDistrict(row.getOrDefault("DISTRCIT", "").trim());
+        dto.setApplicantTA(row.getOrDefault("TA", "").trim());
+
+        String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
+        dto.setRequestedVolume(parseBigDecimal(vol));
+        dto.setVolumeUnit("m3");
+
+        String dur = row.getOrDefault("Duration (YRS)", "").trim();
+        if (!dur.isEmpty() && !dur.equalsIgnoreCase("N/A")) {
+            try { dto.setPermitDuration(Double.parseDouble(dur)); } catch (Exception ignored) {}
+        }
+
+        dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
+
+        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
+        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
+        dto.setSourceVillage(row.getOrDefault("LOCATION", "").trim());
+        dto.setSourceTA(row.getOrDefault("TA", "").trim());
+        dto.setSourceDistrict(row.getOrDefault("DISTRCIT", "").trim());
+
+        return dto;
+    }
+
+    // ===================== DRILLERS CSV =====================
+    // additional data (2).csv
+    // Single header row, data starts row 2
+    // Columns: NO., Client Name, Address, Contact, Email address, Location,
+    //          Grant number, Registration Date, Expire date, Renewal fee,
+    //          Application fees, Renewal Fees 2021-2022, Renewal Fees 2022-2023,
+    //          Renewal Fees 2023-2024, Status
+
+    private void loadDrillersCsv() throws Exception {
+        File file = new File(drillersCsvPath);
+        if (!file.exists()) {
+            log.warn("Drillers CSV not found: {}", drillersCsvPath);
+            return;
+        }
+
+        List<List<String>> rows = readCsvRows(file);
+        log.info("Drillers CSV raw rows: {}", rows.size());
+        if (rows.size() < 2) {
+            log.warn("Drillers CSV has fewer than 2 rows, skipping");
+            return;
+        }
+
+        // Single header row
+        List<String> headers = new ArrayList<>();
+        for (String h : rows.get(0)) headers.add(h.trim());
+        log.info("Drillers CSV headers ({}): {}", headers.size(), headers);
+
+        int loaded = 0;
+        for (int i = 1; i < rows.size(); i++) {
+            List<String> values = rows.get(i);
+            if (values.isEmpty()) continue;
+
+            Map<String, String> row = new LinkedHashMap<>();
+            for (int j = 0; j < headers.size() && j < values.size(); j++) {
+                row.put(headers.get(j), values.get(j).trim());
+            }
+
+            // headers are trimmed so key is "Client Name" not "Client Name "
+            String name = row.getOrDefault("Client Name", "").trim();
+            if (name.isEmpty()) continue;
+
+            try {
+                approvedPermits.add(mapDrillersToApprovedPermit(row));
+                permitApplications.add(mapDrillersToPermitApplication(row));
+                loaded++;
+            } catch (Exception e) {
+                log.warn("Skipping drillers CSV row {}: {}", i + 1, e.getMessage());
+            }
+        }
+        log.info("Drillers CSV loaded: {} records", loaded);
+    }
+
+    private WRMISApprovedPermitDTO mapDrillersToApprovedPermit(Map<String, String> row) {
+        WRMISApprovedPermitDTO dto = new WRMISApprovedPermitDTO();
+
+        String grantNumber = row.getOrDefault("Grant number", "").trim();
+        String no = row.getOrDefault("NO.", "").trim();
+        dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : no);
+        dto.setApplicationId(!grantNumber.isEmpty() ? grantNumber : no);
+        dto.setLicenseType("DRILLING");
+        dto.setLicenseStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
+        dto.setLicenseVersion(1);
+
+        dto.setHolderEmail(row.getOrDefault("Email address", "").trim());
+        dto.setHolderPhone(row.getOrDefault("Contact", "").trim());
+        dto.setHolderAddress(row.getOrDefault("Address", "").trim());
+        dto.setHolderDistrict(row.getOrDefault("Location", "").trim());
+        dto.setHolderName(row.getOrDefault("Client Name", "").trim());
+
+        // No volume column in drillers data
+        dto.setVolumeUnit("m3");
+
+        dto.setDateIssued(parseDate(row.getOrDefault("Registration Date", "")));
+        dto.setExpirationDate(parseDate(row.getOrDefault("Expire date", "")));
+
+        dto.setSourceDistrict(row.getOrDefault("Location", "").trim());
+        dto.setSourceVillage(row.getOrDefault("Location", "").trim());
+
+        return dto;
+    }
+
+    private WRMISPermitApplicationDTO mapDrillersToPermitApplication(Map<String, String> row) {
+        WRMISPermitApplicationDTO dto = new WRMISPermitApplicationDTO();
+
+        String no = row.getOrDefault("NO.", "").trim();
+        String grantNumber = row.getOrDefault("Grant number", "").trim();
+        String appId = !grantNumber.isEmpty() ? grantNumber : no;
+        dto.setApplicationId(appId);
+        dto.setApplicationNumber(appId);
+        dto.setApplicationType("NEW");
+        dto.setLicenseType("DRILLING");
+        dto.setApplicationStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
+
+        dto.setApplicantName(row.getOrDefault("Client Name", "").trim());
+        dto.setApplicantEmail(row.getOrDefault("Email address", "").trim());
+        dto.setApplicantPhone(row.getOrDefault("Contact", "").trim());
+        dto.setApplicantAddress(row.getOrDefault("Address", "").trim());
+        dto.setApplicantDistrict(row.getOrDefault("Location", "").trim());
+
+        dto.setVolumeUnit("m3");
+        dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date", "")));
+        dto.setSourceDistrict(row.getOrDefault("Location", "").trim());
+        dto.setSourceVillage(row.getOrDefault("Location", "").trim());
+
+        return dto;
+    }
+
+    // ===================== CSV READER =====================
+
     private List<List<String>> readCsvRows(File file) {
-        // Try UTF-8 first, then Windows-1252
-        for (String charset : new String[]{"UTF-8", "windows-1252"}) {
+        for (String charset : new String[]{"UTF-8", "windows-1252", "latin-1"}) {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), Charset.forName(charset)))) {
                 List<List<String>> rows = new ArrayList<>();
@@ -123,27 +310,28 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
                 while ((line = br.readLine()) != null) {
                     if (pending != null) {
                         pending.append("\n").append(line);
-                        if (countUnescapedQuotes(pending.toString()) % 2 == 0) {
+                        if (countQuotes(pending.toString()) % 2 == 0) {
                             rows.add(parseCsvLine(pending.toString()));
                             pending = null;
                         }
                     } else {
-                        if (countUnescapedQuotes(line) % 2 != 0) {
+                        if (countQuotes(line) % 2 != 0) {
                             pending = new StringBuilder(line);
                         } else {
                             rows.add(parseCsvLine(line));
                         }
                     }
                 }
+                log.info("Read {} rows from {} using {}", rows.size(), file.getName(), charset);
                 return rows;
             } catch (Exception e) {
-                log.warn("Failed reading CSV with {}: {}", charset, e.getMessage());
+                log.warn("Failed reading {} with {}: {}", file.getName(), charset, e.getMessage());
             }
         }
         return new ArrayList<>();
     }
 
-    private int countUnescapedQuotes(String s) {
+    private int countQuotes(String s) {
         int count = 0;
         for (char c : s.toCharArray()) if (c == '"') count++;
         return count;
@@ -173,244 +361,6 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         return fields;
     }
 
-    // ===================== XLSX LOADING =====================
-
-    private void loadXlsx() throws Exception {
-        File file = new File(xlsxPath);
-        if (!file.exists()) {
-            log.warn("XLSX file not found: {}", xlsxPath);
-            return;
-        }
-
-        try (Workbook wb = new XSSFWorkbook(new FileInputStream(file))) {
-            for (int s = 0; s < wb.getNumberOfSheets(); s++) {
-                Sheet sheet = wb.getSheetAt(s);
-                String sheetName = sheet.getSheetName();
-                log.info("Processing sheet: {}", sheetName);
-
-                String licenseType = resolveSheetLicenseType(sheetName);
-
-                // Row 0 = headers
-                Row headerRow = sheet.getRow(0);
-                if (headerRow == null) continue;
-                List<String> headers = new ArrayList<>();
-                for (Cell cell : headerRow) {
-                    headers.add(getCellString(cell).trim());
-                }
-
-                for (int r = 1; r <= sheet.getLastRowNum(); r++) {
-                    Row row = sheet.getRow(r);
-                    if (row == null) continue;
-
-                    Map<String, String> rowMap = new LinkedHashMap<>();
-                    for (int c = 0; c < headers.size(); c++) {
-                        Cell cell = row.getCell(c);
-                        rowMap.put(headers.get(c), cell != null ? getCellString(cell).trim() : "");
-                    }
-
-                    // Skip empty rows
-                    String clientName = rowMap.getOrDefault("Client Name ", "").trim();
-                    String licenseHolder = rowMap.getOrDefault("Licence holder", "").trim();
-                    String name = !clientName.isEmpty() ? clientName : licenseHolder;
-                    if (name.isEmpty()) continue;
-
-                    try {
-                        WRMISApprovedPermitDTO approved = mapXlsxToApprovedPermit(rowMap, licenseType);
-                        approvedPermits.add(approved);
-
-                        WRMISPermitApplicationDTO application = mapXlsxToPermitApplication(rowMap, licenseType);
-                        permitApplications.add(application);
-                    } catch (Exception e) {
-                        log.warn("Skipping XLSX sheet [{}] row {}: {}", sheetName, r + 1, e.getMessage());
-                    }
-                }
-                log.info("Sheet [{}] done", sheetName);
-            }
-        }
-        log.info("XLSX loaded from {}", xlsxPath);
-    }
-
-    private String resolveSheetLicenseType(String sheetName) {
-        String lower = sheetName.toLowerCase();
-        if (lower.contains("drill")) return "DRILLING";
-        if (lower.contains("effluent")) return "EFFLUENT_DISCHARGE";
-        if (lower.contains("unlicensed")) return "SURFACE_WATER_UNLICENSED";
-        return "SURFACE_WATER";
-    }
-
-    private String getCellString(Cell cell) {
-        if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case STRING: return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    Date d = cell.getDateCellValue();
-                    return new SimpleDateFormat("dd/MM/yyyy").format(d);
-                }
-                double val = cell.getNumericCellValue();
-                if (val == Math.floor(val)) return String.valueOf((long) val);
-                return String.valueOf(val);
-            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                try { return String.valueOf(cell.getNumericCellValue()); }
-                catch (Exception e) { return cell.getStringCellValue(); }
-            default: return "";
-        }
-    }
-
-    // ===================== CSV MAPPERS =====================
-
-    private WRMISApprovedPermitDTO mapCsvToApprovedPermit(Map<String, String> row) {
-        WRMISApprovedPermitDTO dto = new WRMISApprovedPermitDTO();
-
-        // Grant number is the official permit number
-        String grantNumber = row.getOrDefault("GRANT NUMBER", "").trim();
-        String fileRef = row.getOrDefault("FILE", "").trim();
-        dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : fileRef);
-
-        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
-        dto.setLicenseStatus(resolveStatus(row.getOrDefault("Expiry Date", "")));
-        dto.setLicenseVersion(1);
-        dto.setApplicationId(fileRef);
-
-        // Holder info
-        dto.setHolderEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
-        dto.setHolderPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
-        dto.setHolderAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
-        dto.setHolderDistrict(row.getOrDefault("DISTRCIT", "").trim());
-
-        // Volume
-        String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
-        dto.setApprovedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m³");
-
-        // Dates
-        dto.setDateIssued(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
-        dto.setExpirationDate(parseDate(row.getOrDefault("Expiry Date", "")));
-
-        // Duration → validity period
-        String dur = row.getOrDefault("Duration (YRS)", "").trim();
-        if (!dur.isEmpty() && !dur.equals("N/A")) dto.setValidityPeriod(dur + " years");
-
-        // Location
-        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
-        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
-        dto.setSourceVillage(row.getOrDefault("LOCATION", "").trim());
-        dto.setSourceDistrict(row.getOrDefault("DISTRCIT", "").trim());
-
-        return dto;
-    }
-
-    private WRMISPermitApplicationDTO mapCsvToPermitApplication(Map<String, String> row) {
-        WRMISPermitApplicationDTO dto = new WRMISPermitApplicationDTO();
-
-        String fileRef = row.getOrDefault("FILE", "").trim();
-        dto.setApplicationId(fileRef);
-        dto.setApplicationNumber(fileRef);
-        dto.setApplicationType("NEW");
-        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
-        dto.setApplicationStatus("APPROVED");
-
-        // Applicant
-        dto.setApplicantName(row.getOrDefault("Licence holder", "").trim());
-        dto.setApplicantEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
-        dto.setApplicantPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
-        dto.setApplicantAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
-        dto.setApplicantDistrict(row.getOrDefault("DISTRCIT", "").trim());
-
-        // Volume
-        String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
-        dto.setRequestedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m³");
-
-        // Duration
-        String dur = row.getOrDefault("Duration (YRS)", "").trim();
-        if (!dur.isEmpty() && !dur.equals("N/A")) {
-            try { dto.setPermitDuration(Double.parseDouble(dur)); } catch (Exception ignored) {}
-        }
-
-        // Dates
-        dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
-
-        // Location
-        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
-        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
-        dto.setSourceVillage(row.getOrDefault("LOCATION", "").trim());
-        dto.setSourceDistrict(row.getOrDefault("DISTRCIT", "").trim());
-
-        return dto;
-    }
-
-    // ===================== XLSX MAPPERS =====================
-
-    private WRMISApprovedPermitDTO mapXlsxToApprovedPermit(Map<String, String> row, String licenseType) {
-        WRMISApprovedPermitDTO dto = new WRMISApprovedPermitDTO();
-
-        String grantNumber = row.getOrDefault("Grant number", row.getOrDefault("GRANT NUMBER", "")).trim();
-        String fileRef = row.getOrDefault("FILE", row.getOrDefault("COUNT", "")).trim();
-        dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : fileRef);
-
-        dto.setLicenseType(licenseType);
-        dto.setLicenseStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
-        dto.setLicenseVersion(1);
-        dto.setApplicationId(fileRef);
-
-        // Holder
-        String name = row.getOrDefault("Client Name ", row.getOrDefault("Licence holder", "")).trim();
-        dto.setHolderEmail(row.getOrDefault("Email address", row.getOrDefault("EMAIL ADDRESS", "")).trim());
-        dto.setHolderPhone(row.getOrDefault("Contact", row.getOrDefault("PHONE CONTACTS", "")).trim());
-        dto.setHolderAddress(row.getOrDefault("Address", row.getOrDefault("MAILING ADDRESS", "")).trim());
-        dto.setHolderDistrict(row.getOrDefault("Location", row.getOrDefault("DISTRCIT", "")).trim());
-
-        // Volume
-        String vol = row.getOrDefault("Volume (M3/Day", "").trim();
-        dto.setApprovedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m³");
-
-        // Dates
-        dto.setDateIssued(parseDate(row.getOrDefault("Registration Date", row.getOrDefault("Registration Date/Renewal", ""))));
-        dto.setExpirationDate(parseDate(row.getOrDefault("Expire date", row.getOrDefault("Expired date", row.getOrDefault("Expiry Date", "")))));
-
-        // Location
-        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
-        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
-        dto.setSourceVillage(row.getOrDefault("Location", row.getOrDefault("LOCATION", "")).trim());
-        dto.setSourceDistrict(row.getOrDefault("Location", row.getOrDefault("DISTRCIT", "")).trim());
-
-        return dto;
-    }
-
-    private WRMISPermitApplicationDTO mapXlsxToPermitApplication(Map<String, String> row, String licenseType) {
-        WRMISPermitApplicationDTO dto = new WRMISPermitApplicationDTO();
-
-        String fileRef = row.getOrDefault("FILE", row.getOrDefault("COUNT", "")).trim();
-        dto.setApplicationId(fileRef);
-        dto.setApplicationNumber(row.getOrDefault("Grant number", row.getOrDefault("GRANT NUMBER", fileRef)).trim());
-        dto.setApplicationType("NEW");
-        dto.setLicenseType(licenseType);
-        dto.setApplicationStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
-
-        String name = row.getOrDefault("Client Name ", row.getOrDefault("Licence holder", "")).trim();
-        dto.setApplicantName(name);
-        dto.setApplicantEmail(row.getOrDefault("Email address", row.getOrDefault("EMAIL ADDRESS", "")).trim());
-        dto.setApplicantPhone(row.getOrDefault("Contact", row.getOrDefault("PHONE CONTACTS", "")).trim());
-        dto.setApplicantAddress(row.getOrDefault("Address", row.getOrDefault("MAILING ADDRESS", "")).trim());
-        dto.setApplicantDistrict(row.getOrDefault("Location", row.getOrDefault("DISTRCIT", "")).trim());
-
-        String vol = row.getOrDefault("Volume (M3/Day", "").trim();
-        dto.setRequestedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m³");
-
-        dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date", row.getOrDefault("Registration Date/Renewal", ""))));
-
-        dto.setSourceLatitude(row.getOrDefault("X", "").trim());
-        dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
-        dto.setSourceVillage(row.getOrDefault("Location", row.getOrDefault("LOCATION", "")).trim());
-        dto.setSourceDistrict(row.getOrDefault("Location", row.getOrDefault("DISTRCIT", "")).trim());
-
-        return dto;
-    }
-
     // ===================== HELPERS =====================
 
     private String resolveUseToLicenseType(String use) {
@@ -425,7 +375,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         return "SURFACE_WATER";
     }
 
-    private String resolveStatus(String expiryDateStr) {
+    private String resolveStatusFromExpiry(String expiryDateStr) {
         Date expiry = parseDate(expiryDateStr);
         if (expiry == null) return "ACTIVE";
         return expiry.before(new Date()) ? "EXPIRED" : "ACTIVE";
@@ -437,17 +387,21 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         if (lower.contains("active")) return "ACTIVE";
         if (lower.contains("expired") || lower.contains("expire")) return "EXPIRED";
         if (lower.contains("suspend")) return "SUSPENDED";
-        return status.toUpperCase();
+        if (lower.contains("renewed")) return "ACTIVE";
+        return "ACTIVE";
     }
 
     private Date parseDate(String dateStr) {
         if (dateStr == null || dateStr.trim().isEmpty() || dateStr.trim().equalsIgnoreCase("N/A")) return null;
-        String[] formats = {"dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "d/M/yyyy", "dd-MM-yyyy"};
+        String[] formats = {"dd/MM/yyyy", "d/M/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", "dd-MM-yyyy", "d/MM/yyyy", "dd/M/yyyy"};
         for (String fmt : formats) {
             try {
-                return new SimpleDateFormat(fmt).parse(dateStr.trim());
+                SimpleDateFormat sdf = new SimpleDateFormat(fmt);
+                sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                return sdf.parse(dateStr.trim());
             } catch (Exception ignored) {}
         }
+        log.debug("Could not parse date: [{}]", dateStr);
         return null;
     }
 
@@ -461,7 +415,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
     }
 
     private boolean matchesDateRange(Date date, Date dateFrom, Date dateTo) {
-        if (date == null) return false;
+        if (date == null) return dateFrom == null && dateTo == null;
         if (dateFrom != null && date.before(dateFrom)) return false;
         if (dateTo != null && date.after(dateTo)) return false;
         return true;

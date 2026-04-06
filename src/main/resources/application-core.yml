@@ -28,20 +28,20 @@ spring:
     password: "brianndesa001"
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: cu.kibabiiuniversity@gmail.com
-    password: "fuzs zitu xjxh tcck"
+    host: smtp.hostinger.com
+    port: 465
+    username: support@careconnectmalawi.com
+    password: "Rheba#3610"
     properties:
       mail:
         smtp:
           auth: true
-          starttls:
-            enable: true
-            required: true
           ssl:
+            enable: true
+          starttls:
             enable: false
-    from: cu.kibabiiuniversity@gmail.com
+            required: false
+    from: support@careconnectmalawi.com
     from-name: "License Application System"
   sql:
     init:

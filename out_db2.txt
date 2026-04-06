@@ -1,0 +1,30 @@
+ID: 69cb5aa1-f79b-4c5b-a037-404f8a6f9e6c \n  location_info keys: ['traditionalAuthority', 'waterUseLocation', 'propertyRegime', 'leaseholdPlotNo', 'plotNo', 'worksLocation', 'gpsCoordinates', 'landArea', 'village', 'freeholdPlotNo'] \n  location_info: {
+  "traditionalAuthority": "Sed itaque blanditii",
+  "waterUseLocation": "Veniam quas velit o",
+  "propertyRegime": "Leasehold",
+  "leaseholdPlotNo": null,
+  "plotNo": null,
+  "worksLocation": "Dolorem eveniet qui",
+  "gpsCoordinates": "2.746874587,462.8757843",
+  "landArea": 99,
+  "village": "Nostrum ipsam explic",
+  "freeholdPlotNo": null
+} \n
+ID: 6ecd5560-3ef1-4631-84cd-b1c250d09c42 \n  location_info keys: ['traditionalAuthority', 'leaseholdPlotNo', 'sourceEasting', 'waterDiversionLocation', 'landArea', 'landWaterUseLocation', 'freeholdPlotNo', 'waterUptakeDistrict', 'propertyRegime', 'sourceNorthing', 'landWorksLocation', 'destNorthing', 'waterSourceCoordinates', 'destEasting', 'waterSourceName', 'village'] \n  location_info: {
+  "traditionalAuthority": "angie",
+  "leaseholdPlotNo": null,
+  "sourceEasting": null,
+  "waterDiversionLocation": "cool",
+  "landArea": 50,
+  "landWaterUseLocation": "zomba",
+  "freeholdPlotNo": null,
+  "waterUptakeDistrict": "jjjjj",
+  "propertyRegime": "customary",
+  "sourceNorthing": null,
+  "landWorksLocation": "mwanza",
+  "destNorthing": null,
+  "waterSourceCoordinates": "111.2",
+  "destEasting": null,
+  "waterSourceName": "rukuru",
+  "village": "tholo"
+} \n

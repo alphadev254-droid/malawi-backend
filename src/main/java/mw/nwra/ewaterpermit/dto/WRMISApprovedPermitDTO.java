@@ -17,6 +17,7 @@ public class WRMISApprovedPermitDTO {
     private Integer licenseVersion;
 
     // Permit holder details (from application client_info)
+    private String holderName;
     private String holderEmail;
     private String holderPhone;
     private String holderAddress;
@@ -38,7 +39,6 @@ public class WRMISApprovedPermitDTO {
     private String sourceVillage;
     private String sourceDistrict;
     private String sourceTA;
-    private String catchmentArea;
 
     // Constructor
     public WRMISApprovedPermitDTO() {}
@@ -82,6 +82,14 @@ public class WRMISApprovedPermitDTO {
 
     public void setLicenseVersion(Integer licenseVersion) {
         this.licenseVersion = licenseVersion;
+    }
+
+    public String getHolderName() {
+        return holderName;
+    }
+
+    public void setHolderName(String holderName) {
+        this.holderName = holderName;
     }
 
     public String getHolderEmail() {
@@ -202,13 +210,5 @@ public class WRMISApprovedPermitDTO {
 
     public void setSourceTA(String sourceTA) {
         this.sourceTA = sourceTA;
-    }
-
-    public String getCatchmentArea() {
-        return catchmentArea;
-    }
-
-    public void setCatchmentArea(String catchmentArea) {
-        this.catchmentArea = catchmentArea;
     }
 }

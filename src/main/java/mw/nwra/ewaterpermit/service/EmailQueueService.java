@@ -43,8 +43,20 @@ public class EmailQueueService {
             Properties props = mailSender.getJavaMailProperties();
             props.put("mail.transport.protocol", "smtp");
             props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
+            // Dynamically set SSL or STARTTLS based on port
+            if (config.getSystemEmailPort() == 465) {
+                props.put("mail.smtp.ssl.enable", "true");
+                props.put("mail.smtp.starttls.enable", "false");
+                props.put("mail.smtp.starttls.required", "false");
+                props.put("mail.smtp.ssl.trust", config.getSystemEmailSmtp());
+            } else {
+                props.put("mail.smtp.ssl.enable", "false");
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
+            }
+            props.put("mail.smtp.connectiontimeout", "10000");
+            props.put("mail.smtp.timeout", "10000");
+            props.put("mail.smtp.writetimeout", "10000");
             props.put("mail.debug", "false");
 
             System.out.println("=== EMAIL QUEUE SERVICE - DB CONFIG ===");

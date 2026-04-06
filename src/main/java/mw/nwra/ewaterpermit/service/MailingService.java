@@ -61,10 +61,13 @@ public class MailingService {
 
 			this.mailer = MailerBuilder
 					.withSMTPServer(mailHost, mailPort, mailUsername, mailPassword)
-					.withTransportStrategy(TransportStrategy.SMTP_TLS) // Use STARTTLS for Gmail
-					.withSessionTimeout(10 * 1000)
+					.withTransportStrategy(mailPort == 465 ? TransportStrategy.SMTPS : TransportStrategy.SMTP_TLS)
+					.withSessionTimeout(15 * 1000)
 					.withProperty("mail.smtp.sendpartial", true)
-					.async().buildMailer();
+					.withProperty("mail.smtp.connectiontimeout", "10000")
+					.withProperty("mail.smtp.timeout", "10000")
+					.withProperty("mail.smtp.writetimeout", "10000")
+					.buildMailer();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ForbiddenException("Failed to send email");
@@ -223,8 +226,8 @@ public class MailingService {
 
 		Email email = emailBuilder.buildEmail();
 		try {
-			// Send email synchronously to avoid async timing issues
-			mailer.sendMail(email, false); // false = synchronous
+			// Send email synchronously
+			mailer.sendMail(email, false);
 			this.messageSent = true;
 			System.out.println("Email sent successfully!");
 		} catch (Exception e) {

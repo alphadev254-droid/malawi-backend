@@ -382,4 +382,42 @@ public interface CoreLicenseApplicationRepository extends JpaRepository<CoreLice
 		   "LEFT JOIN FETCH app.sysUserAccount")
 	List<CoreLicenseApplication> findAllWithRelations();
 
+	// WRMIS - query by date_created OR date_submitted to catch all applications
+	@Query("SELECT DISTINCT app FROM CoreLicenseApplication app " +
+		   "LEFT JOIN FETCH app.coreApplicationStatus " +
+		   "LEFT JOIN FETCH app.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreApplicationStep step " +
+		   "LEFT JOIN FETCH step.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreWaterSource ws " +
+		   "LEFT JOIN FETCH ws.coreWaterSourceType " +
+		   "LEFT JOIN FETCH app.sysUserAccount " +
+		   "WHERE (app.dateCreated BETWEEN :dateFrom1 AND :dateTo1) OR (app.dateSubmitted BETWEEN :dateFrom2 AND :dateTo2)")
+	List<CoreLicenseApplication> findByDateCreatedBetweenOrDateSubmittedBetween(
+			@Param("dateFrom1") java.util.Date dateFrom1, @Param("dateTo1") java.util.Date dateTo1,
+			@Param("dateFrom2") java.util.Date dateFrom2, @Param("dateTo2") java.util.Date dateTo2);
+
+	@Query("SELECT DISTINCT app FROM CoreLicenseApplication app " +
+		   "LEFT JOIN FETCH app.coreApplicationStatus " +
+		   "LEFT JOIN FETCH app.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreApplicationStep step " +
+		   "LEFT JOIN FETCH step.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreWaterSource ws " +
+		   "LEFT JOIN FETCH ws.coreWaterSourceType " +
+		   "LEFT JOIN FETCH app.sysUserAccount " +
+		   "WHERE app.dateCreated >= :dateFrom1 OR app.dateSubmitted >= :dateFrom2")
+	List<CoreLicenseApplication> findByDateCreatedAfterOrDateSubmittedAfter(
+			@Param("dateFrom1") java.util.Date dateFrom1, @Param("dateFrom2") java.util.Date dateFrom2);
+
+	@Query("SELECT DISTINCT app FROM CoreLicenseApplication app " +
+		   "LEFT JOIN FETCH app.coreApplicationStatus " +
+		   "LEFT JOIN FETCH app.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreApplicationStep step " +
+		   "LEFT JOIN FETCH step.coreLicenseType " +
+		   "LEFT JOIN FETCH app.coreWaterSource ws " +
+		   "LEFT JOIN FETCH ws.coreWaterSourceType " +
+		   "LEFT JOIN FETCH app.sysUserAccount " +
+		   "WHERE app.dateCreated <= :dateTo1 OR app.dateSubmitted <= :dateTo2")
+	List<CoreLicenseApplication> findByDateCreatedBeforeOrDateSubmittedBefore(
+			@Param("dateTo1") java.util.Date dateTo1, @Param("dateTo2") java.util.Date dateTo2);
+
 }

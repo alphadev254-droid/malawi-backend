@@ -30,11 +30,11 @@ public class LegacyDataController {
     @Autowired
     private WRMISAuthService wrmisAuthService;
 
-    @Value("${wrmis.legacy.xlsx-path}")
-    private String xlsxPath;
-
     @Value("${wrmis.legacy.csv-path}")
-    private String csvPath;
+    private String surfaceWaterCsvPath;
+
+    @Value("${wrmis.legacy.xlsx-path}")
+    private String drillersCsvPath;
 
     // ===================== APPROVED PERMITS =====================
 
@@ -46,9 +46,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISApprovedPermitDTO> permits = legacyFileDataService.getApprovedPermits(dateFrom, dateTo);
-
             log.info("Legacy approved permits returned: {}", permits.size());
             return okResponse(permits, Map.of(
                     "dateFrom", dateFrom != null ? dateFrom.toString() : "null",
@@ -67,9 +65,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISApprovedPermitDTO> permits = legacyFileDataService.getApprovedPermitsByDate(date);
-
             log.info("Legacy approved permits by date {}: {}", date, permits.size());
             return okResponse(permits, Map.of("date", date.toString()));
         } catch (Exception e) {
@@ -87,9 +83,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISApprovedPermitDTO> permits = legacyFileDataService.getApprovedPermitsByEmail(email, dateFrom, dateTo);
-
             log.info("Legacy approved permits by email {}: {}", email, permits.size());
             return okResponse(permits, Map.of(
                     "email", email,
@@ -109,9 +103,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             WRMISApprovedPermitDTO permit = legacyFileDataService.getApprovedPermitByLicenseNumber(licenseNumber);
-
             if (permit == null) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
@@ -119,14 +111,13 @@ public class LegacyDataController {
                 response.put("timestamp", System.currentTimeMillis());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", permit);
             response.put("query", Map.of("licenseNumber", licenseNumber));
+            response.put("source", "legacy-file");
             response.put("timestamp", System.currentTimeMillis());
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error fetching legacy permit by license number: {}", e.getMessage(), e);
             return errorResponse("Error fetching permit by license number: " + e.getMessage());
@@ -143,9 +134,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISPermitApplicationDTO> applications = legacyFileDataService.getPermitApplications(dateFrom, dateTo);
-
             log.info("Legacy permit applications returned: {}", applications.size());
             return okResponse(applications, Map.of(
                     "dateFrom", dateFrom != null ? dateFrom.toString() : "null",
@@ -164,9 +153,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISPermitApplicationDTO> applications = legacyFileDataService.getPermitApplicationsByDate(date);
-
             log.info("Legacy permit applications by date {}: {}", date, applications.size());
             return okResponse(applications, Map.of("date", date.toString()));
         } catch (Exception e) {
@@ -184,9 +171,7 @@ public class LegacyDataController {
 
         try {
             if (!validateToken(authHeader)) return unauthorizedResponse();
-
             List<WRMISPermitApplicationDTO> applications = legacyFileDataService.getPermitApplicationsByEmail(email, dateFrom, dateTo);
-
             log.info("Legacy permit applications by email {}: {}", email, applications.size());
             return okResponse(applications, Map.of(
                     "email", email,
@@ -209,8 +194,8 @@ public class LegacyDataController {
         response.put("version", "1.0");
         response.put("timestamp", System.currentTimeMillis());
         response.put("sources", Map.of(
-                "xlsx", xlsxPath,
-                "csv", csvPath
+                "surfaceWaterCsv", surfaceWaterCsvPath,
+                "drillersCsv", drillersCsvPath
         ));
         response.put("recordCounts", Map.of(
                 "approvedPermits", legacyFileDataService.getTotalApprovedPermitsCount(),
