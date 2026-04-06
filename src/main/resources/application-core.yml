@@ -20,8 +20,8 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    # url: jdbc:mysql://localhost:3306/ewaterdb
-    url: jdbc:mysql://91.108.121.232:3306/ewaterdb
+    url: jdbc:mysql://localhost:3306/ewaterdb
+    # url: jdbc:mysql://91.108.121.232:3306/ewaterdb
     username: root
   #  username: root
     # password: ""
