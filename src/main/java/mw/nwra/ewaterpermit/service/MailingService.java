@@ -59,14 +59,21 @@ public class MailingService {
 			System.out.println("Security: " + this.config.getSystemEmailSmtpSecurity());
 			System.out.println("===================================");
 
+			TransportStrategy strategy = mailPort == 465 ? TransportStrategy.SMTPS : TransportStrategy.SMTP_TLS;
+
 			this.mailer = MailerBuilder
 					.withSMTPServer(mailHost, mailPort, mailUsername, mailPassword)
-					.withTransportStrategy(mailPort == 465 ? TransportStrategy.SMTPS : TransportStrategy.SMTP_TLS)
+					.withTransportStrategy(strategy)
 					.withSessionTimeout(15 * 1000)
-					.withProperty("mail.smtp.sendpartial", true)
+					.withProperty("simplejavamail.transportstrategy", strategy.name())
+					.withProperty("mail.smtp.sendpartial", "true")
 					.withProperty("mail.smtp.connectiontimeout", "10000")
 					.withProperty("mail.smtp.timeout", "10000")
 					.withProperty("mail.smtp.writetimeout", "10000")
+					// Port 465 = SMTPS (SSL from the start), disable STARTTLS
+					.withProperty("mail.smtp.ssl.enable", mailPort == 465 ? "true" : "false")
+					.withProperty("mail.smtp.starttls.enable", mailPort == 465 ? "false" : "true")
+					.withProperty("mail.smtp.starttls.required", mailPort == 465 ? "false" : "true")
 					.buildMailer();
 		} catch (Exception e) {
 			e.printStackTrace();
