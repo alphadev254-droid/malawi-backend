@@ -1,23 +1,30 @@
 package mw.nwra.ewaterpermit.service;
 
-import mw.nwra.ewaterpermit.dto.WRMISApprovedPermitDTO;
-import mw.nwra.ewaterpermit.dto.WRMISPermitApplicationDTO;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
-import java.io.*;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
+import mw.nwra.ewaterpermit.dto.WRMISApprovedPermitDTO;
+import mw.nwra.ewaterpermit.dto.WRMISPermitApplicationDTO;
 
 @Service
 public class LegacyFileDataServiceImpl implements LegacyFileDataService {
@@ -123,21 +130,29 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
 
         String grantNumber = row.getOrDefault("GRANT NUMBER", "").trim();
         String fileRef = row.getOrDefault("FILE", "").trim();
+        String category = row.getOrDefault("COUNT", "").trim();
+
         dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : fileRef);
         dto.setApplicationId(fileRef);
-        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
+        dto.setCategory(category);
+        dto.setLicenseType(resolveCategoryToLicenseType(category, row.getOrDefault("Use ", "").trim()));
         dto.setLicenseStatus(resolveStatusFromExpiry(row.getOrDefault("Expiry Date", "")));
         dto.setLicenseVersion(1);
 
+        dto.setHolderName(row.getOrDefault("Licence holder", "").trim());
         dto.setHolderEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
         dto.setHolderPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
         dto.setHolderAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
+        dto.setHolderPhysicalAddress(row.getOrDefault("Physical Adress / Plot Number", "").trim());
+        dto.setHolderContactPerson(row.getOrDefault("CONTACT PERSON", "").trim());
         dto.setHolderDistrict(row.getOrDefault("DISTRCIT", "").trim());
-        dto.setHolderName(row.getOrDefault("Licence holder", "").trim());
 
         String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
         dto.setApprovedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m3");
+        dto.setVolumeUnit("m3/day");
+        dto.setWaterSource(row.getOrDefault("Source", "").trim());
+        dto.setWaterUse(row.getOrDefault("Use ", "").trim());
+        dto.setGranterName(row.getOrDefault("Name of Granter", "").trim());
 
         dto.setDateIssued(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
         dto.setExpirationDate(parseDate(row.getOrDefault("Expiry Date", "")));
@@ -158,22 +173,31 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         WRMISPermitApplicationDTO dto = new WRMISPermitApplicationDTO();
 
         String fileRef = row.getOrDefault("FILE", "").trim();
+        String grantNumber = row.getOrDefault("GRANT NUMBER", "").trim();
+        String category = row.getOrDefault("COUNT", "").trim();
+
         dto.setApplicationId(fileRef);
-        dto.setApplicationNumber(row.getOrDefault("GRANT NUMBER", fileRef).trim());
+        dto.setApplicationNumber(!grantNumber.isEmpty() ? grantNumber : fileRef);
         dto.setApplicationType("NEW");
-        dto.setLicenseType(resolveUseToLicenseType(row.getOrDefault("Use ", "").trim()));
+        dto.setCategory(category);
+        dto.setLicenseType(resolveCategoryToLicenseType(category, row.getOrDefault("Use ", "").trim()));
         dto.setApplicationStatus("APPROVED");
 
         dto.setApplicantName(row.getOrDefault("Licence holder", "").trim());
         dto.setApplicantEmail(row.getOrDefault("EMAIL ADDRESS", "").trim());
         dto.setApplicantPhone(row.getOrDefault("PHONE CONTACTS", "").trim());
         dto.setApplicantAddress(row.getOrDefault("MAILING ADDRESS", "").trim());
+        dto.setApplicantPhysicalAddress(row.getOrDefault("Physical Adress / Plot Number", "").trim());
+        dto.setApplicantContactPerson(row.getOrDefault("CONTACT PERSON", "").trim());
         dto.setApplicantDistrict(row.getOrDefault("DISTRCIT", "").trim());
         dto.setApplicantTA(row.getOrDefault("TA", "").trim());
 
         String vol = row.getOrDefault("Volume (M3/Day", row.getOrDefault("Volume (M3/Day)", "")).trim();
         dto.setRequestedVolume(parseBigDecimal(vol));
-        dto.setVolumeUnit("m3");
+        dto.setVolumeUnit("m3/day");
+        dto.setWaterSource(row.getOrDefault("Source", "").trim());
+        dto.setWaterUse(row.getOrDefault("Use ", "").trim());
+        dto.setGranterName(row.getOrDefault("Name of Granter", "").trim());
 
         String dur = row.getOrDefault("Duration (YRS)", "").trim();
         if (!dur.isEmpty() && !dur.equalsIgnoreCase("N/A")) {
@@ -181,6 +205,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         }
 
         dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date/Renewal", "")));
+        dto.setExpiryDate(parseDate(row.getOrDefault("Expiry Date", "")));
 
         dto.setSourceLatitude(row.getOrDefault("X", "").trim());
         dto.setSourceLongitude(row.getOrDefault("Y", "").trim());
@@ -250,19 +275,18 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         String no = row.getOrDefault("NO.", "").trim();
         dto.setPermitNumber(!grantNumber.isEmpty() ? grantNumber : no);
         dto.setApplicationId(!grantNumber.isEmpty() ? grantNumber : no);
+        dto.setCategory("Drilling");
         dto.setLicenseType("DRILLING");
         dto.setLicenseStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
         dto.setLicenseVersion(1);
 
+        dto.setHolderName(row.getOrDefault("Client Name", "").trim());
         dto.setHolderEmail(row.getOrDefault("Email address", "").trim());
         dto.setHolderPhone(row.getOrDefault("Contact", "").trim());
         dto.setHolderAddress(row.getOrDefault("Address", "").trim());
         dto.setHolderDistrict(row.getOrDefault("Location", "").trim());
-        dto.setHolderName(row.getOrDefault("Client Name", "").trim());
 
-        // No volume column in drillers data
-        dto.setVolumeUnit("m3");
-
+        dto.setVolumeUnit("m3/day");
         dto.setDateIssued(parseDate(row.getOrDefault("Registration Date", "")));
         dto.setExpirationDate(parseDate(row.getOrDefault("Expire date", "")));
 
@@ -281,6 +305,7 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         dto.setApplicationId(appId);
         dto.setApplicationNumber(appId);
         dto.setApplicationType("NEW");
+        dto.setCategory("Drilling");
         dto.setLicenseType("DRILLING");
         dto.setApplicationStatus(resolveXlsxStatus(row.getOrDefault("Status", "Active")));
 
@@ -290,8 +315,9 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
         dto.setApplicantAddress(row.getOrDefault("Address", "").trim());
         dto.setApplicantDistrict(row.getOrDefault("Location", "").trim());
 
-        dto.setVolumeUnit("m3");
+        dto.setVolumeUnit("m3/day");
         dto.setDateSubmitted(parseDate(row.getOrDefault("Registration Date", "")));
+        dto.setExpiryDate(parseDate(row.getOrDefault("Expire date", "")));
         dto.setSourceDistrict(row.getOrDefault("Location", "").trim());
         dto.setSourceVillage(row.getOrDefault("Location", "").trim());
 
@@ -362,6 +388,17 @@ public class LegacyFileDataServiceImpl implements LegacyFileDataService {
     }
 
     // ===================== HELPERS =====================
+
+    private String resolveCategoryToLicenseType(String category, String use) {
+        if (category != null && !category.isEmpty()) {
+            String cat = category.toLowerCase().trim();
+            if (cat.contains("ground")) return "GROUND_WATER";
+            if (cat.contains("non") && cat.contains("consumptive")) return "SURFACE_WATER_NON_CONSUMPTIVE";
+            if (cat.contains("association")) return "WATER_USER_ASSOCIATION";
+            // "Surface Water" and "Surface_NonConsumptive_Users" fall through to use-based resolution
+        }
+        return resolveUseToLicenseType(use);
+    }
 
     private String resolveUseToLicenseType(String use) {
         if (use == null || use.isEmpty()) return "SURFACE_WATER";

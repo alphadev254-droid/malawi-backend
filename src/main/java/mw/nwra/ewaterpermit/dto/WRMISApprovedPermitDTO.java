@@ -12,23 +12,29 @@ public class WRMISApprovedPermitDTO {
     // License identifiers
     private String licenseId;
     private String permitNumber;
-    private String licenseType;
+    private String licenseType;     // GROUND_WATER, SURFACE_WATER, IRRIGATION, DOMESTIC, DRILLING, etc.
+    private String category;        // Raw category from CSV: "Ground Water", "Surface Water", etc.
     private String licenseStatus;
     private Integer licenseVersion;
 
-    // Permit holder details (from application client_info)
+    // Permit holder details
     private String holderName;
     private String holderEmail;
     private String holderPhone;
     private String holderAddress;
+    private String holderPhysicalAddress;
+    private String holderContactPerson;
     private String holderDistrict;
 
     // Approved permit details
-    private BigDecimal approvedVolume; // From assessment.rental_quantity
-    private String volumeUnit; // Always "m³"
+    private BigDecimal approvedVolume;
+    private String volumeUnit;
     private Date dateIssued;
     private Date expirationDate;
-    private String validityPeriod; // e.g., "5 years"
+    private String validityPeriod;
+    private String waterSource;   // e.g. "Borehole", "Lake Malawi", "Shire River"
+    private String waterUse;      // e.g. "Irrigation", "Domestic", "Livestock"
+    private String granterName;
 
     // Related application
     private String applicationId;
@@ -40,175 +46,86 @@ public class WRMISApprovedPermitDTO {
     private String sourceDistrict;
     private String sourceTA;
 
-    // Constructor
     public WRMISApprovedPermitDTO() {}
 
-    // Getters and Setters
-    public String getLicenseId() {
-        return licenseId;
-    }
+    public String getLicenseId() { return licenseId; }
+    public void setLicenseId(String licenseId) { this.licenseId = licenseId; }
 
-    public void setLicenseId(String licenseId) {
-        this.licenseId = licenseId;
-    }
+    public String getPermitNumber() { return permitNumber; }
+    public void setPermitNumber(String permitNumber) { this.permitNumber = permitNumber; }
 
-    public String getPermitNumber() {
-        return permitNumber;
-    }
+    public String getLicenseType() { return licenseType; }
+    public void setLicenseType(String licenseType) { this.licenseType = licenseType; }
 
-    public void setPermitNumber(String permitNumber) {
-        this.permitNumber = permitNumber;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public String getLicenseType() {
-        return licenseType;
-    }
+    public String getLicenseStatus() { return licenseStatus; }
+    public void setLicenseStatus(String licenseStatus) { this.licenseStatus = licenseStatus; }
 
-    public void setLicenseType(String licenseType) {
-        this.licenseType = licenseType;
-    }
+    public Integer getLicenseVersion() { return licenseVersion; }
+    public void setLicenseVersion(Integer licenseVersion) { this.licenseVersion = licenseVersion; }
 
-    public String getLicenseStatus() {
-        return licenseStatus;
-    }
+    public String getHolderName() { return holderName; }
+    public void setHolderName(String holderName) { this.holderName = holderName; }
 
-    public void setLicenseStatus(String licenseStatus) {
-        this.licenseStatus = licenseStatus;
-    }
+    public String getHolderEmail() { return holderEmail; }
+    public void setHolderEmail(String holderEmail) { this.holderEmail = holderEmail; }
 
-    public Integer getLicenseVersion() {
-        return licenseVersion;
-    }
+    public String getHolderPhone() { return holderPhone; }
+    public void setHolderPhone(String holderPhone) { this.holderPhone = holderPhone; }
 
-    public void setLicenseVersion(Integer licenseVersion) {
-        this.licenseVersion = licenseVersion;
-    }
+    public String getHolderAddress() { return holderAddress; }
+    public void setHolderAddress(String holderAddress) { this.holderAddress = holderAddress; }
 
-    public String getHolderName() {
-        return holderName;
-    }
+    public String getHolderPhysicalAddress() { return holderPhysicalAddress; }
+    public void setHolderPhysicalAddress(String holderPhysicalAddress) { this.holderPhysicalAddress = holderPhysicalAddress; }
 
-    public void setHolderName(String holderName) {
-        this.holderName = holderName;
-    }
+    public String getHolderContactPerson() { return holderContactPerson; }
+    public void setHolderContactPerson(String holderContactPerson) { this.holderContactPerson = holderContactPerson; }
 
-    public String getHolderEmail() {
-        return holderEmail;
-    }
+    public String getHolderDistrict() { return holderDistrict; }
+    public void setHolderDistrict(String holderDistrict) { this.holderDistrict = holderDistrict; }
 
-    public void setHolderEmail(String holderEmail) {
-        this.holderEmail = holderEmail;
-    }
+    public BigDecimal getApprovedVolume() { return approvedVolume; }
+    public void setApprovedVolume(BigDecimal approvedVolume) { this.approvedVolume = approvedVolume; }
 
-    public String getHolderPhone() {
-        return holderPhone;
-    }
+    public String getVolumeUnit() { return volumeUnit; }
+    public void setVolumeUnit(String volumeUnit) { this.volumeUnit = volumeUnit; }
 
-    public void setHolderPhone(String holderPhone) {
-        this.holderPhone = holderPhone;
-    }
+    public Date getDateIssued() { return dateIssued; }
+    public void setDateIssued(Date dateIssued) { this.dateIssued = dateIssued; }
 
-    public String getHolderAddress() {
-        return holderAddress;
-    }
+    public Date getExpirationDate() { return expirationDate; }
+    public void setExpirationDate(Date expirationDate) { this.expirationDate = expirationDate; }
 
-    public void setHolderAddress(String holderAddress) {
-        this.holderAddress = holderAddress;
-    }
+    public String getValidityPeriod() { return validityPeriod; }
+    public void setValidityPeriod(String validityPeriod) { this.validityPeriod = validityPeriod; }
 
-    public String getHolderDistrict() {
-        return holderDistrict;
-    }
+    public String getWaterSource() { return waterSource; }
+    public void setWaterSource(String waterSource) { this.waterSource = waterSource; }
 
-    public void setHolderDistrict(String holderDistrict) {
-        this.holderDistrict = holderDistrict;
-    }
+    public String getWaterUse() { return waterUse; }
+    public void setWaterUse(String waterUse) { this.waterUse = waterUse; }
 
-    public BigDecimal getApprovedVolume() {
-        return approvedVolume;
-    }
+    public String getGranterName() { return granterName; }
+    public void setGranterName(String granterName) { this.granterName = granterName; }
 
-    public void setApprovedVolume(BigDecimal approvedVolume) {
-        this.approvedVolume = approvedVolume;
-    }
+    public String getApplicationId() { return applicationId; }
+    public void setApplicationId(String applicationId) { this.applicationId = applicationId; }
 
-    public String getVolumeUnit() {
-        return volumeUnit;
-    }
+    public String getSourceLatitude() { return sourceLatitude; }
+    public void setSourceLatitude(String sourceLatitude) { this.sourceLatitude = sourceLatitude; }
 
-    public void setVolumeUnit(String volumeUnit) {
-        this.volumeUnit = volumeUnit;
-    }
+    public String getSourceLongitude() { return sourceLongitude; }
+    public void setSourceLongitude(String sourceLongitude) { this.sourceLongitude = sourceLongitude; }
 
-    public Date getDateIssued() {
-        return dateIssued;
-    }
+    public String getSourceVillage() { return sourceVillage; }
+    public void setSourceVillage(String sourceVillage) { this.sourceVillage = sourceVillage; }
 
-    public void setDateIssued(Date dateIssued) {
-        this.dateIssued = dateIssued;
-    }
+    public String getSourceDistrict() { return sourceDistrict; }
+    public void setSourceDistrict(String sourceDistrict) { this.sourceDistrict = sourceDistrict; }
 
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    public String getValidityPeriod() {
-        return validityPeriod;
-    }
-
-    public void setValidityPeriod(String validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public String getSourceLatitude() {
-        return sourceLatitude;
-    }
-
-    public void setSourceLatitude(String sourceLatitude) {
-        this.sourceLatitude = sourceLatitude;
-    }
-
-    public String getSourceLongitude() {
-        return sourceLongitude;
-    }
-
-    public void setSourceLongitude(String sourceLongitude) {
-        this.sourceLongitude = sourceLongitude;
-    }
-
-    public String getSourceVillage() {
-        return sourceVillage;
-    }
-
-    public void setSourceVillage(String sourceVillage) {
-        this.sourceVillage = sourceVillage;
-    }
-
-    public String getSourceDistrict() {
-        return sourceDistrict;
-    }
-
-    public void setSourceDistrict(String sourceDistrict) {
-        this.sourceDistrict = sourceDistrict;
-    }
-
-    public String getSourceTA() {
-        return sourceTA;
-    }
-
-    public void setSourceTA(String sourceTA) {
-        this.sourceTA = sourceTA;
-    }
+    public String getSourceTA() { return sourceTA; }
+    public void setSourceTA(String sourceTA) { this.sourceTA = sourceTA; }
 }
